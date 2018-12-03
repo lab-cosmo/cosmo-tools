@@ -50,8 +50,8 @@ do
 done
 
 #replaces and renames figures according to the figNUMBER.sub PRX scheme
-S_FLOATS=( $(grep -n -e "\\\\begin{\(figure\|SCfigure\|table\)[*]*}" __sb_tmp1 | sed -e '{s/\(^[0-9]*\):.*$/\1/}') )
-E_FLOATS=( $(grep -n -e "\\\\end{\(figure\|SCfigure\|table\)[*]*}" __sb_tmp1 | sed -e '{s/\(^[0-9]*\):.*$/\1/}') )
+S_FLOATS=( $(grep -n -e "\\\\begin{\(figure\|SCfigure\|sidewaysfigure\|table\)[*]*}" __sb_tmp1 | sed -e '{s/\(^[0-9]*\):.*$/\1/}') )
+E_FLOATS=( $(grep -n -e "\\\\end{\(figure\|SCfigure\|sidewaysfigure\|table\)[*]*}" __sb_tmp1 | sed -e '{s/\(^[0-9]*\):.*$/\1/}') )
 
 k=0
 for (( i=0; i< ${#S_FLOATS[@]}; i++ ));
