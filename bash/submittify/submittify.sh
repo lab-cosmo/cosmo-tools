@@ -49,6 +49,13 @@ do
     mv __sb_tmp2 __sb_tmp1
 done
 
+#removes comments from file
+sed -i 's/\(^\|[^\\]\)%.*$/\1%/' __sb_tmp1
+sed -i 's/\(^.*\)\\begin{comment}.*$/\1\n\\begin{comment}/' __sb_tmp1
+sed -i 's/^.*\\end{comment}\(.*$\)/\\end{comment}\n\1/' __sb_tmp1
+awk 'BEGIN{icmd=0} /\\begin{comment}/{icmd+=1} {if (icmd==0) print $0} /\\end{comment}/{icmd-=1}' __sb_tmp1 > __sb_tmp2
+mv __sb_tmp2 __sb_tmp1 
+
 #replaces and renames figures according to the figNUMBER.sub PRX scheme
 S_FLOATS=( $(grep -n -e "\\\\begin{\(figure\|SCfigure\|sidewaysfigure\|table\)[*]*}" __sb_tmp1 | sed -e '{s/\(^[0-9]*\):.*$/\1/}') )
 E_FLOATS=( $(grep -n -e "\\\\end{\(figure\|SCfigure\|sidewaysfigure\|table\)[*]*}" __sb_tmp1 | sed -e '{s/\(^[0-9]*\):.*$/\1/}') )
@@ -72,13 +79,6 @@ do
     mv __sb_tmp2 __sb_tmp1
   done
 done
-
-#removes comments from file
-sed -i 's/\(^\|[^\\]\)%.*$/\1%/' __sb_tmp1
-sed -i 's/\(^.*\)\\begin{comment}.*$/\1\n\\begin{comment}/' __sb_tmp1
-sed -i 's/^.*\\end{comment}\(.*$\)/\\end{comment}\n\1/' __sb_tmp1
-awk 'BEGIN{icmd=0} /\\begin{comment}/{icmd+=1} {if (icmd==0) print $0} /\\end{comment}/{icmd-=1}' __sb_tmp1 > __sb_tmp2
-mv __sb_tmp2 __sb_tmp1
 
 #if a bibtex bibliography file is present, it is included into the file
 if [ -e "${PREFIX}.bbl" ]
