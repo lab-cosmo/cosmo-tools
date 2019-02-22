@@ -1,0 +1,345 @@
+### COSMO Style for Matplotlib ###
+# Find out where your matplotlib style files are contained:
+#
+# >>> import matplotlib as mpl
+# >>> mpl.get_configdir()
+# '/home/user/.config/matplotlib/'
+#
+# If it does not exist, create a 'stylelib' stylelib in 
+# the matplotlib configdir. Place this style file in the stylelib directory.
+
+### PS, PDF, SVG, PGF ###
+ps.papersize: a4
+ps.useafm: False
+ps.usedistiller: False # None, ghostscript, xpdf
+ps.distiller.res: 6000
+ps.fonttype: 3
+
+pdf.compression: 6
+pdf.fonttype: 3
+pdf.use14corefonts: False
+pdf.inheritcolor: False
+
+svg.image_inline: True
+svg.fonttype: path # None, svgfont
+svg.hashsalt: None
+
+pgf.rcfonts: True
+#pgf.preamble:
+pgf.texsystem: xelatex
+
+### Lines ###
+lines.linewidth: 1.0 
+lines.linestyle: -
+lines.color: C0
+lines.marker: None
+#lines.markerfacecolor: auto
+#lines.markeredgecolor: auto
+lines.markersize: 2
+lines.dash_joinstyle: round
+lines.dash_capstyle: butt
+lines.solid_joinstyle: round
+lines.solid_capstyle: projecting
+lines.antialiased: True
+
+lines.dashed_pattern: 4.0, 2.0
+lines.dashdot_pattern: 8.0, 2.0, 1.0, 2.0
+lines.dotted_pattern: 1.0, 2.0
+lines.scale_dashes: True
+
+markers.fillstyle: full # left, right, bottom, top, None
+
+### Boxplots ###
+boxplot.notch: False
+boxplot.vertical: True
+boxplot.whiskers: 2.0
+boxplot.bootstrap: None
+boxplot.patchartist: False
+boxplot.showmeans: False
+boxplot.showcaps: True
+boxplot.showbox: True
+boxplot.meanline: False
+
+boxplot.flierprops.color: black
+boxplot.flierprops.marker: o
+boxplot.flierprops.markerfacecolor: None
+boxplot.flierprops.markeredgecolor: black
+boxplot.flierprops.markersize: 2 
+boxplot.flierprops.linestyle: None
+boxplot.flierprops.linewidth: 1.0 
+
+boxplot.boxprops.color: black
+boxplot.boxprops.linewidth: 1.0 
+boxplot.boxprops.linestyle: -
+
+boxplot.whiskerprops.color: black
+boxplot.whiskerprops.linewidth: 1.0
+boxplot.whiskerprops.linestyle: -
+
+boxplot.capprops.color: black
+boxplot.capprops.linewidth: 1.0 
+boxplot.capprops.linestyle: -
+
+boxplot.medianprops.color: C1
+boxplot.medianprops.linewidth: 1.0 
+boxplot.medianprops.linestyle: -
+
+boxplot.meanprops.color: C2
+boxplot.meanprops.marker: ^
+boxplot.meanprops.markerfacecolor: C2
+boxplot.meanprops.markeredgecolor: C2
+boxplot.meanprops.markersize: 2
+boxplot.meanprops.linestyle: --
+boxplot.meanprops.linewidth: 1.0 
+
+### Error Bars ###
+errorbar.capsize: 2
+
+### Contours ###
+contour.negative_linestyle: dashed
+contour.corner_mask: True
+
+### Scatter Plots ###
+scatter.marker: o
+agg.path.chunksize: 0
+
+### Histogram Plots ###
+hist.bins: 10
+
+### Paths ###
+path.simplify: True
+path.simplify_threshold: 0.1
+path.snap: True
+path.sketch: None
+#path.effects: []
+
+### Patches ###
+patch.linewidth: 1.0 
+patch.facecolor: C0
+patch.edgecolor: black
+patch.force_edgecolor: False
+patch.antialiased: True
+
+### Hatches ###
+hatch.color: black
+hatch.linewidth: 1.0 
+
+### Axes ###
+axes.facecolor: white
+axes.edgecolor: black
+axes.linewidth: 1.0 
+axes.grid: False
+axes.grid.axis: both
+axes.grid.which: major
+axes.titlesize: large
+axes.titlepad: 6.0
+axes.labelsize: medium
+axes.labelpad: 4.0
+axes.labelcolor: black
+axes.axisbelow: line # patches, False
+axes.formatter.limits: -4, 4
+axes.formatter.use_locale: False
+axes.formatter.use_mathtext: False
+axes.formatter.min_exponent: 0
+axes.formatter.useoffset: True
+axes.formatter.offset_threshold: 4
+axes.spines.left: True
+axes.spines.bottom: True
+axes.spines.top: True
+axes.spines.right: True
+axes.unicode_minus: True
+axes.prop_cycle: cycler(color=['000000', 'aa0000', '000080', '008000', '800080', '808080', 'ffcc00', 'd45500', '008080', 'c83771', '8b4513', 'c0c0c0'])
+axes.autolimit_mode: data #round_numbers
+axes.xmargin: 0.05
+axes.ymargin: 0.05
+
+polaraxes.grid: True
+axes3d.grid: True
+
+### Ticks ###
+xtick.top: True
+xtick.bottom: True
+xtick.labeltop: False
+xtick.labelbottom: True
+xtick.major.size: 4.0
+xtick.minor.size: 2.0
+xtick.major.width: 1.0 # increase for poster style
+xtick.minor.width: 1.0 # increase for poster style
+xtick.major.pad: 5.0
+xtick.minor.pad: 5.0
+xtick.color: black
+xtick.labelsize: small
+xtick.direction: in 
+xtick.minor.visible: True
+xtick.major.top: True
+xtick.major.bottom: True
+xtick.minor.top: True
+xtick.minor.bottom: True
+xtick.alignment: center
+
+ytick.left: True
+ytick.right: True
+ytick.labelleft: True
+ytick.labelright: False 
+ytick.major.size: 4.0
+ytick.minor.size: 2.0
+ytick.major.width: 1.0 # increase for poster style
+ytick.minor.width: 1.0 # increase for poster style
+ytick.major.pad: 5.0
+ytick.minor.pad: 5.0
+ytick.color: black
+ytick.labelsize: small
+ytick.direction: in
+ytick.minor.visible: True
+ytick.major.left: True
+ytick.major.right: True
+ytick.minor.left: True
+ytick.minor.right: True
+ytick.alignment: center_baseline
+
+### Grids ###
+grid.color: b0b0b0
+grid.linestyle: --
+grid.linewidth: 1.0 
+grid.alpha: 1.0
+
+### Legend ###
+legend.loc: best
+legend.frameon: False
+legend.framealpha: 0.0
+legend.facecolor: inherit
+legend.edgecolor: inherit
+legend.fancybox: False
+legend.shadow: False
+legend.numpoints: 1
+legend.scatterpoints: 1
+legend.markerscale: 1.0
+legend.fontsize: small
+#legend.title_fontsize: None
+legend.borderpad: 0.4
+legend.labelspacing: 0.5
+legend.handlelength: 2.0
+legend.handleheight: 0.7
+legend.handletextpad: 0.8
+legend.borderaxespad: 0.5
+legend.columnspacing: 2.0
+
+### Fonts ###
+font.family: serif
+font.style: normal
+font.variant: normal
+font.weight: normal
+font.stretch: normal
+font.size: 10 
+font.serif: computer modern roman, dejavu serif, bitstream vera serif, new century schoolbook, century schoolbook l, utopia, itc bookman, bookman, nimbus roman no9 l, times new roman, times, palatino, charter, serif
+font.sans-serif: helvetica, arial, dejavu sans, bitstream vera sans, computer modern sans serif, lucida grande, verdana, geneva, lucid, avant garde, sans-serif
+font.cursive: apple chancery, textile, zapf chancery, sand, script mt, felipa, cursive
+font.fantasy: comic sans ms, chicago, charcoal, impactwestern, humor sans, xkcd, fantasy
+font.monospace: dejavu sans mono, bitstream vera sans mono, computer modern typewriter, andale mono, nimbus mono l, courier new, courier, fixed, terminal, monospace
+
+### Text ###
+text.color: black
+text.usetex: False
+#text.latex.preamble:
+text.latex.preview: False
+text.hinting: auto
+text.hinting_factor: 8
+text.antialiased: True
+
+mathtext.cal: cursive
+mathtext.rm: sans
+mathtext.tt: monospace
+mathtext.it: sans:italic
+mathtext.bf: sans:bold
+mathtext.sf: sans
+mathtext.fontset: cm # dejavusans dejavuserif, cm, stix, stixsans, custom
+mathtext.fallback_to_cm: True
+mathtext.default: it
+
+### Dates ###
+date.autoformatter.year: %y
+date.autoformatter.month: %y-%m
+date.autoformatter.day: %y-%m-%d
+date.autoformatter.hour: %m-%d %h
+date.autoformatter.minute: %d %h:%m
+date.autoformatter.second: %h:%m:%s
+date.autoformatter.microsecond: %m:%s.%f
+
+### Images ###
+image.aspect: equal
+image.interpolation: nearest
+image.cmap: cbarHot
+image.lut: 256
+image.origin: upper # lower
+image.resample: True
+image.composite_image: True
+
+### Figures ###
+figure.titlesize: x-large
+figure.titleweight: normal
+figure.figsize: 3.54, 3.54 # Single column
+figure.dpi: 150
+figure.facecolor: white
+figure.edgecolor: white
+figure.frameon: True
+
+figure.subplot.left: 0.125
+figure.subplot.right: 0.9
+figure.subplot.bottom: 0.11
+figure.subplot.top: 0.88
+figure.subplot.wspace: 0.2
+figure.subplot.hspace: 0.2
+figure.autolayout: False
+figure.constrained_layout.use: False
+figure.constrained_layout.h_pad: 0.04167
+figure.constrained_layout.w_pad: 0.04167
+figure.constrained_layout.hspace: 0.02
+figure.constrained_layout.wspace: 0.02
+
+### Saving Figures ###
+savefig.dpi: figure
+savefig.facecolor: white
+savefig.edgecolor: white
+savefig.format: pdf
+savefig.bbox: tight
+savefig.pad_inches: 0.05
+savefig.jpeg_quality: 95
+#savefig.directory: ~ # for saving in other than working directory
+savefig.transparent: True
+savefig.frameon: True
+savefig.orientation: portrait #landscape
+
+### Keymaps ###
+keymap.fullscreen: f, ctrl+f
+keymap.home: h, r, home
+keymap.back: left, c, backspace
+keymap.forward: right, v
+keymap.pan: p
+keymap.zoom: o
+keymap.save: s, ctrl+s
+#keymap.help: f1
+keymap.quit: ctrl+w, cmd+w, q
+keymap.quit_all: w, cmd+w, q
+keymap.grid: g
+keymap.grid_minor: g
+keymap.yscale: l
+keymap.xscale: k, l
+keymap.all_axes: a
+#keymap.copy: ctrl+c, cmd+c
+
+### Animation ###
+animation.html: none # html5, jshtml
+animation.writer: ffmpeg
+animation.codec: h264
+animation.bitrate: -1
+animation.frame_format: png
+#animation.html_args:
+animation.ffmpeg_path: ffmpeg
+#animation.ffmpeg_args:
+animation.avconv_path: convert
+#animation.avconv_args:
+animation.convert_path: convert
+#animation.convert_args:
+animation.embed_limit: 20.0
+
+
