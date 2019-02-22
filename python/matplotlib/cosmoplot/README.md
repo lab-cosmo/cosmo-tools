@@ -6,7 +6,7 @@ style.py
 **Author**  
 Benjamin Helfrecht
 
-**Description**
+**Description**  
 Contains custom colobar definitions,
 color, linestyle, marker, and hatch cycles,
 and other utilities for defining and customizing style
@@ -27,56 +27,56 @@ and other utilities for defining and customizing style
 
 utils.py
 ---------
-**Author**
+**Author**  
 Benjamin Helfrecht
 
-**Description**
+**Description**  
 Some (yet untested) color utilities for converting
 between color spaces and for determining 
 colorblind-friendly color schemes,
 and additional utilities and macros for making plots
 
-**Usage**
+**Usage**  
 Import the utilities with:
 `import cosmoplot.utils as cosmoutils`
 
 colorbars.py
 ------------
-**Author**
+**Author**  
 Benjamin Helfrecht
 
-**Description**
+**Description**  
 Contains the definitions for the COSMO
 custom colorbars
 
-**Usage**
+**Usage**  
 Import the colorbars with:
 `import cosmoplot.colorbars as cosmocbars`
 
 cosmo.mplstyle
 --------------
-**Author**
+**Author**  
 Benjamin Helfrecht
 
-**Description**
+**Description**  
 Matplotlib style file with custom plot setup
 for articles
 
-**Usage**
+**Usage**  
 The COSMO style is set automatically when calling 
 `cosmo.set_style()` or `cosmo.set_style(article)`,
 but can also be set with `plt.style.use('cosmo')`.
 
 cosmoLarge.mplstyle
 -------------------
-**Author**
+**Author**  
 Benjamin Helfrecht
 
-**Description**
+**Description**  
 Matplotlib style file with custom plot setup
 for presentations and posters
 
-**Usage**
+**Usage**  
 The COSMO Large style is set automatically when calling 
 `cosmo.set_style(presentation)` or `cosmo.set_style(poster)`,
 but can also be set with `plt.style.use('cosmoLarge')`.

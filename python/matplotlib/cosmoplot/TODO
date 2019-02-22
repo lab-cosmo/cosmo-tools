@@ -1,6 +1,0 @@
-Utility for changing font sizes based on number of subplots and figure size
-
-Utility for automatically removing redundant subplot labels
-
-Selecton of a colorblind-friendly color scheme
-(on-the-fly, given the number of colors required)
