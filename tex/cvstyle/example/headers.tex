@@ -1,0 +1,24 @@
+\usepackage{cv,booktabs}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{ifthen}
+\def\headcolor{\color[rgb]{0.7,0,0}}
+% Space before section headings
+\titlespacing{\section}{0pt}{2ex}{1ex}
+\DeclareSourcemap{
+  \maps[datatype=bibtex, overwrite]{
+    \map{
+      \step[fieldset=month, null]
+    }
+  }
+}
+\usepackage[sfdefault,lf,t]{carlito}
+\renewcommand{\bibfont}{\normalfont\fontsize{10}{12.4}\sffamily}
+\usepackage{inconsolata}
+\usepackage{fontawesome}
+\usepackage{setspace}
+\usepackage{microtype}
+
+\newcommand{\cutoffyear}{2000}
+\newcommand{\ifrecent}[2]{\ifthenelse{#1>\cutoffyear \or #1=\cutoffyear}{#2}{}}
+\newcommand{\addifrecent}[3]{\ifthenelse{#2>\cutoffyear \or #2=\cutoffyear}{\addtocategory{#1}{#3}}{}}

@@ -1,0 +1,62 @@
+\documentclass[a4paper,10pt]{article}
+\usepackage{cv}
+
+% This is a model CV with all the information I could think of. 
+% The CV is structured with separate imports for each section so it's easy to
+% comment out or change the order following the requirements of a funding body
+% with minimal hassle. It is also easy to mantain a *-short version of each section
+% so one can mix and match. 
+
+% option switches
+%\newcommand{\showage}{}
+\renewcommand{\cutoffyear}{2015}
+
+\name{Michele Ceriotti}
+
+% This includes the header information
+\input{info}
+
+% Should be a master file with all the bibtex entries - can have more than just the papers of the person writing the CV
+\bibliography{biblio}
+
+% This is what really includes the papers that will be part of the bibliography. Again it's easy-ish to maintain a long
+% and short paper list if one needs to
+\input{all-papers}
+
+\begin{document}
+\maketitle
+
+\input{currentpost}
+
+\input{interests}
+
+\input{bio}
+
+\input{previous}
+
+\input{education}
+
+\input{prizes}
+
+\input{grants}
+
+\input{talks}
+
+\input{teaching}
+
+\input{service}
+
+
+% This is where the publication list is generated. 
+% Each category has a separate entry, the title is set in the .sty file
+\enlargethispage*{0.9cm}
+\setlength{\bibitemsep}{1.8pt}
+
+\printbib{papers}
+\printbib{conferences}
+\printbib{editorials}
+\printbib{chapters}
+\printbib{phd}
+\printbib{software}
+
+\end{document}
