@@ -63,7 +63,7 @@ E_FLOATS=( $(grep -n -e "\\\\end{\(figure\|SCfigure\|sidewaysfigure\|table\)[*]*
 k=0
 for (( i=0; i< ${#S_FLOATS[@]}; i++ ));
 do
-  FIGS=( $(cat __sb_tmp1 | get_lines ${S_FLOATS[$i]} ${E_FLOATS[$i]} | grep includegraphic | sed -e '{s/.*includegraphics[^{]*{ *\([^}]*\) *}.*/\1/}') )
+  FIGS=( $(cat __sb_tmp1 | get_lines ${S_FLOATS[$i]} ${E_FLOATS[$i]} | grep includegraphic | sed -e '{s/.*includegraphics[^{]*{ *\([^{]*\) *}.*/\1/}') )
   echo "FLOAT $i:" ${S_FLOATS[$i]} ${E_FLOATS[$i]}
   echo "${#FIGS[@]} FIGURES:" ${FIGS[@]}
   if [  ${#FIGS[@]} -gt 0 ]; then (( k++ )); fi
