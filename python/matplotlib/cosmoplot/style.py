@@ -12,7 +12,7 @@ two_col_poster = (14.16, 7.08)
 
 color_cycle = ['#000000', '#aa0000', '#000080', '#008000', '#800080', '#808080', 
         '#ffcc00', '#d45500', '#c83771', '#c0c0c0']
-marker_cycle = ['o', 's', '^', 'v', '+', 'x']
+marker_cycle = ['o', 's', '^', 'v', '<', '>', '+', 'x']
 linestyle_cycle = ['-', '--', ':', '-.']
 hatch_cycle = ['/', '//', '\\', '\\\\', 'x', 'xx']
 fill_cycle = ['full', 'none', 'bottom', 'left', 'top', 'right']

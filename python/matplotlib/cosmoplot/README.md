@@ -25,21 +25,6 @@ and other utilities for defining and customizing style
     where 'name' is 'cbarHot' (sequential), 'cbarBWR' (diverging),
     or 'cbarPhi' (periodic). Call `cbar.view()` to view the colorbar.
 
-utils.py
----------
-**Author**  
-Benjamin Helfrecht
-
-**Description**  
-Some (yet untested) color utilities for converting
-between color spaces and for determining 
-colorblind-friendly color schemes,
-and additional utilities and macros for making plots
-
-**Usage**  
-Import the utilities with:
-`import cosmoplot.utils as cosmoutils`
-
 colorbars.py
 ------------
 **Author**  
