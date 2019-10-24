@@ -23,7 +23,7 @@ and other utilities for defining and customizing style
     and the colorbars will be registered in Matplotlib.
 3.  Colorbars can be called from `cbar = plt.get_cmap(name)`,
     where 'name' is 'cbarHot' (sequential), 'cbarBWR' (diverging),
-    or 'cbarPhi' (periodic). Call `cbar.view()` to view the colorbar.
+    or 'cbarPhi' (periodic).
 
 colorbars.py
 ------------
