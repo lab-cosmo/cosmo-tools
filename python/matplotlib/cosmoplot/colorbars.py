@@ -16,17 +16,6 @@ class cbar(object):
         self.cbar = LinearSegmentedColormap.from_list(name, RGB_list)
         plt.register_cmap(cmap=self.cbar)
 
-    def view(self):
-        colors = self.cbar(np.arange(self.cbar.N))
-        figColormap = plt.figure(figsize=(6.7, 3.4))
-        cAx = figColormap.add_subplot(1, 1, 1)
-        cAx.imshow([colors], extent=[0, 10, 0, 1])
-        cAx.set_xticklabels([])
-        cAx.set_xticks([])
-        cAx.set_yticklabels([])
-        cAx.set_yticks([])
-        plt.show()
-
 class cring(object):
     """
         Base class for periodic color bars
@@ -37,18 +26,6 @@ class cring(object):
     def make_cbar(self, name, RGB_list):
         self.cbar = LinearSegmentedColormap.from_list(name, RGB_list)
         plt.register_cmap(cmap=self.cbar)
-
-    def view(self):
-        rotation = np.arange(0, 361, 1)
-        thickness = np.arange(40, 70, 1)
-        values = rotation*np.ones((30, 361))
-        figColormap = plt.figure(figsize=(6.7, 3.4))
-        cAx = figColormap.add_subplot(1, 1, 1, projection='polar')
-        cAx.pcolormesh(rotation*np.pi/180.0, thickness, values, 
-                cmap=plt.get_cmap(self.cbar))
-        cAx.set_yticks([])
-        cAx.tick_params(pad=15)
-        plt.show()
 
 class cbarHot(cbar):
     """
