@@ -3,7 +3,7 @@
 import matplotlib.pyplot as plt
 import matplotlib as mpl
 import numpy as np
-import colorbars
+from . import colorbars
 
 one_col = (3.54, 3.54)
 two_col = (7.08, 3.54)
