@@ -40,10 +40,10 @@ def fetch_citations(author, filesave="citations.json"):
 
 description="""
 Usage: 
-    python fetch_citations.py "author name" > data.json
+    python fetch_citations.py "author name" -o data.json
     
     Looks up citation data for the selected author on Google Scholar,
-    returning a JSON string on stdout containing all of the info. 
+    saving to the specified file a JSON string containing all of the info. 
 """
 
 if __name__ == "__main__":
