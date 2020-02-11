@@ -12,6 +12,7 @@ sigmas=np.loadtxt('SIGMAS')
 heights=np.loadtxt('HEIGHTS')
 
 iters=1
+times = []
 for ss in range(1000,len(colvars),100):
 
     new_it=itre.Itre()
@@ -27,9 +28,16 @@ for ss in range(1000,len(colvars),100):
     new_it.calculate_c_t()
     end = time.time()
     print("{} steps processed in {} s".format(ss,end-start))
+    times.append([ss,end-start])
     plt.plot(new_it.ct[-1].T)
     iters = iters + 1 
 
 plt.show()
+
+print()
+print("Scaling summary:")
+for k in times:
+    print("{} steps performed in {} seconds".format(k[0],k[1]))
+
 
 
