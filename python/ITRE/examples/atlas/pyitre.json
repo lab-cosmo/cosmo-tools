@@ -1,0 +1,10 @@
+{
+"stride":1,
+"kT":1.0,
+"colvars_file":"LOWD_CVS_clean",
+"heights_file":"HEIGHTS",
+"sigmas_file":"SIGMAS",
+"thetas_file":"THETA_clean",
+"starting_height":2.0,
+"iterations":20
+}
