@@ -15,6 +15,7 @@ if os.path.isfile("pyitre.json"):
 i_bias = np.loadtxt('bias',usecols=1,skiprows=2)
 
 it = itre.Itre()
+it.kT=1.0
 it.from_dict(directives)
 
 start=time.time()

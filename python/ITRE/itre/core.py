@@ -25,7 +25,8 @@ class Itre(object):
         self.__required_properties_list = ['colvars_file','heights_file' \
                                           ,'sigmas_file']
         self.__optional_properties = ['kT','stride','thetas_file','iterations',\
-                                      'starting_height','wall_file']
+                                      'starting_height','wall_file','boundaries',\
+                                      'boundaries_file']
 
         for el in self.__required_properties_list:
             object.__setattr__(self,'{}'.format(el),None)
@@ -41,6 +42,7 @@ class Itre(object):
         self.__setattr__('has_matrix',False)
         self.__setattr__('has_thetas',False)
         self.__setattr__('use_numba',False)
+        self.__setattr__('has_periodicity',False)
 
     def print_dict(self):
         """
@@ -67,8 +69,23 @@ class Itre(object):
                       on the simulation.',
         'has_thetas':'for an ATLAS calculation set True if we set thetas \
                       directly, not from a json object',
-        'use_numba':'wether to use numba or not.'
+        'use_numba':'wether to use numba or not.',
+        'boundaries_file':'this directive tells Itre to read a file from which \
+                           the boundaries of each CVs are readed. If a CVs is \
+                           not bounded, then the string \"unbounded\" is expected.',
+        'boundaries':'Altenatively, one can provide the boundaries directly \
+                      as a numpy array, with the \
+                      the minimum and maximum of the CV. If \"bounded\"  \
+                      is present, then the minimum and maximum value of the CVs \
+                      are used. If \"unbounded\" is present than the CVs is \
+                      treated as non periodic. However, since the code assume \
+                      that periodicity has to be enforced, this result is \
+                      obtained by using a periodicity that is larger than the \
+                      |max-min|/2. If nothing is specified, all the CVs are \
+                      assumed to be unbounded. This key has priority over \
+                      \" boundaries_file\".'
         }
+
 
         printitre(json.dumps(dd, indent=4, sort_keys=True))
 
@@ -118,17 +135,91 @@ class Itre(object):
         else:
             wall = np.zeros(len(colvars))
 
+        if self.boundaries_file is not None:
+            if os.path.isfile(self.boundaries_file):
+                boundaries = np.loadtxt(self.boundaries_file)
+                if len(colvars[0])>len(boundaries/2):
+                    raise ValueError('There are more CVs than boundaries')
+                if len(colvars[0])<len(boundaries/2):
+                    raise ValueError('There are less CVs than boundaries')
+        elif self.boundaries is not None:
+            boundaries = self.boundaries
+        else:
+            printitre("Automatic assigning the boundary to the CVs.")
+            boundaries = None
+
         self.__setattr__('colvars',colvars)
         self.__setattr__('wall',wall)
         self.__setattr__('sigmas',sigmas)
         self.__setattr__('heights',heights)
-        self.__setattr__('beta',self.kT)
+        self.__setattr__('beta',1/self.kT)
 
         if self.has_thetas:
             self.__setattr__('thetas',thetas)
 
         self.__setattr__('steps',len(self.colvars))
         self.__setattr__('n_evals',int(self.steps//self.stride))
+
+        self.set_boundaries(boundaries)
+
+
+    def set_boundaries(self,boundaries=None):
+        """
+        This function picks the directive for the boundary conditions provided
+        in the json file or the input and transform then into numerical values
+        that can be used by the Itre().
+
+        Parameters
+        ----------
+
+        boundaries : a list of numbers and string that either contains \
+                     information on the periodicity (or not) of a given \
+                     variables
+        """
+
+        n_cvs = len(self.colvars[0])
+
+        if boundaries is None:
+            printitre("Guessing the periodicity!")
+            boundaries = ['unbounded']*n_cvs*2
+
+        float_boundaries = []
+
+        for k in range(n_cvs):
+            el1 = boundaries[2*k]
+            el2 = boundaries[2*k+1]
+
+            if el1 == 'unbounded' and el2 != 'unbounded' \
+            or el2 == 'unbounded' and el1 != 'unbounded':
+                raise ValueError("You cannot have a CVs that is periodic only on\
+                                  one value. It has to be periodic on both side.")
+
+            if el1 == 'unbounded':
+                min = np.amin(self.colvars.T[k])
+                max = 5*np.amax(self.colvars.T[k])
+            elif el1 == 'bounded':
+                min = np.amin(self.colvars.T[k])
+            elif el2 == 'bounded':
+                max = np.amin(self.colvars.T[k])
+            elif isinstance(el1,float):
+                min = el1
+            elif isinstance(el2,float):
+                max = el2
+
+
+            float_boundaries.append(min)
+            float_boundaries.append(max)
+
+        float_boundaries = np.array(float_boundaries)
+        if len(float_boundaries) != 2*n_cvs:
+            raise ValueError("Something went wrong in the association of the \
+                              periodic boundaries. You have a mismatch between \
+                              the number of variables and boundaries.")
+
+        self.__setattr__('boundaries',float_boundaries)
+        self.__setattr__('has_periodicity',True)
+        printitre("Periodic boundary has been setted!")
+
 
     def calculate_bias_matrix(self):
         """
@@ -199,6 +290,11 @@ class Itre(object):
         If the bias matrix has not been calculate, calculate the matrix and
         then proceed in the self consistent cycle.
         """
+        self.__setattr__('beta',1/self.kT)
+
+        if not self.has_periodicity:
+            self.set_boundaries()
+
         if not self.has_matrix:
             printitre("The lagged potential matrix was not calculated")
             printitre("Calculating it now!")

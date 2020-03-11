@@ -14,6 +14,7 @@ if os.path.isfile("pyitre.json"):
 
 i_bias = np.loadtxt('bias',skiprows=2,usecols=1)
 it = itre.Itre()
+it.kT = 1.0
 it.from_dict(directives)
 it.use_numba=False
 
@@ -43,6 +44,7 @@ list_ss = [31,1000]
 for ss in list_ss:
     print(ss)
     new_it=itre.Itre()
+    new_it.kT=1.0
     new_it.use_numba=True
     new_it.colvars=colvars[:ss]
     new_it.wall = np.zeros(ss)

@@ -37,7 +37,7 @@ class Metadynamics(object):
             for k in range(i*stride):
                 dist = (colvars[i*stride]-colvars[k])/sigmas[k]
                 dist2 = 0.5 * dist.dot(dist)
-                bias_matrix[i,i] += np.exp(-dist2)*heights[k] + wall[k]
+                bias_matrix[i,i] += np.exp(-dist2)*heights[k]
 
         for i in range(n_evals):
             for j in range(i,n_evals-1):
@@ -45,9 +45,14 @@ class Metadynamics(object):
                 for t in range(j*stride,(j+1)*stride):
                     dist = (colvars[i*stride]-colvars[t])/sigmas[t]
                     dist2 = 0.5 * dist.dot(dist)
-                    bias_sum += np.exp(-dist2)*heights[t] + wall[t]
+                    bias_sum += np.exp(-dist2)*heights[t]
 
                 bias_matrix[j+1,i] = bias_matrix[j,i] + bias_sum
+
+        for i in range(n_evals):
+            upper_index = int(i*stride)
+            for j in range(i,n_evals):
+                bias_matrix[j,i] += wall[upper_index]
 
         return bias_matrix
 
@@ -65,7 +70,7 @@ class Metadynamics(object):
         wall : the value of the restraint acting in the simulation
         n_evals :  the number of evaluation to do (T in here)
         stride : the stride between two different evaluation.
-        
+
         Returns
         -------
         bias_matrix : a T*T float matrix containing the lagged potential matrix
@@ -75,7 +80,7 @@ class Metadynamics(object):
         for i in range(n_evals):
             upper_index = int(i*stride)
             for k in range(upper_index):
-                bias_matrix[i,i] += self.kernel(colvars[upper_index],colvars[k],sigmas[k])*heights[k] + wall[k]
+                bias_matrix[i,i] += self.kernel(colvars[upper_index],colvars[k],sigmas[k])*heights[k]
 
         for i in range(n_evals):
             ref_index= int(i*stride)
@@ -84,8 +89,13 @@ class Metadynamics(object):
                 upper_index = int((j+1)*stride)
                 bias_sum = 0.0
                 for t in range(lower_index,upper_index):
-                    bias_sum += self.kernel(colvars[ref_index],colvars[t],sigmas[t])*heights[t]  + wall[t]
+                    bias_sum += self.kernel(colvars[ref_index],colvars[t],sigmas[t])*heights[t]
 
                 bias_matrix[j+1,i] = bias_matrix[j,i] + bias_sum
 
+        for i in range(n_evals):
+            upper_index = int(i*stride)
+            for j in range(i,n_evals):
+                bias_matrix[j,i] += wall[upper_index]
+                
         return bias_matrix

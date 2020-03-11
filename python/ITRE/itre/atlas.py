@@ -51,14 +51,14 @@ class Atlas(object):
 
         for i in range(n_evals):
             upper_index = int(i*stride)
+            sum_bias = 0.0
             for k in range(upper_index+1):
-                sum_bias = 0.0
                 for minimum in range(n_minima):
                     start = int(minimum*dims) ; end = int(minimum*dims+dims)
                     switch = thetas[upper_index,minimum]*thetas[k,minimum]
                     sum_bias += self.kernel(colvars[upper_index,start:end],colvars[k,start:end],sigmas[k,start:end])*heights[k]*switch
 
-                bias_matrix[i,i] += sum_bias + wall[k]
+            bias_matrix[i,i] = sum_bias
 
         for i in range(n_evals):
             ref_index= int(i*stride)
@@ -72,10 +72,13 @@ class Atlas(object):
                         switch = thetas[ref_index,minimum]*thetas[t,minimum]
                         sum_bias += self.kernel(colvars[ref_index,start:end],colvars[t,start:end],sigmas[t,start:end])*heights[t]*switch
 
-                    sum_bias += wall[t]
-
                 bias_matrix[j+1,i] = bias_matrix[j,i] + sum_bias
 
+        for i in range(n_evals):
+            upper_index = int(i*stride)
+            for j in range(i,n_evals):
+                bias_matrix[j,i] += wall[upper_index]
+                
         return bias_matrix
 
     @staticmethod
@@ -88,8 +91,8 @@ class Atlas(object):
 
         for i in range(n_evals):
             upper_index = int(i*stride)
+            sum_bias = 0.0
             for k in range(upper_index+1):
-                sum_bias = 0.0
                 for minimum in range(n_minima):
                     start = int(minimum*dims) ; end = int(minimum*dims+dims)
                     switch = thetas[upper_index,minimum]*thetas[k,minimum]
@@ -97,7 +100,7 @@ class Atlas(object):
                     dist2 = 0.5 * dist.dot(dist)
                     sum_bias += np.exp(-dist2)*heights[k]*switch
 
-                bias_matrix[i,i] += sum_bias + wall[k]
+            bias_matrix[i,i] = sum_bias
 
         for i in range(n_evals):
             ref_index= int(i*stride)
@@ -113,8 +116,12 @@ class Atlas(object):
                         dist2 = 0.5 * dist.dot(dist)
                         sum_bias += np.exp(-dist2)*heights[t]*switch
 
-                    sum_bias += wall[t]
-
                 bias_matrix[j+1,i] = bias_matrix[j,i] + sum_bias
+
+
+        for i in range(n_evals):
+            upper_index = int(i*stride)
+            for j in range(i,n_evals):
+                bias_matrix[j,i] += wall[upper_index]
 
         return bias_matrix

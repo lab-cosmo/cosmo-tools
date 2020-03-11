@@ -20,6 +20,7 @@ times=[]
 end = len(colvars)
 for ss in range(2,end+3,end):
    new_it=itre.Itre()
+   new_it.kT=1.0
    new_it.use_numba=True
    new_it.colvars=colvars[:ss]
    new_it.wall = np.zeros(ss)
