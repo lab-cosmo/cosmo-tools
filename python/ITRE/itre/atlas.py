@@ -7,7 +7,7 @@ class Atlas(object):
     def __init__(self):
         super(Atlas, self).__init__()
 
-    def kernel(self,a,b,c):
+    def kernel(self,a,b,c,boundaries):
         """This function evaluate the gaussian between two points given the
            covariance
 
@@ -21,11 +21,12 @@ class Atlas(object):
            -------
            the value of the Gaussian overlap
         """
-        dist = (a-b)/c
+        comp = a-b-np.rint((a-b)/boundaries)*boundaries
+        dist = comp/c
         dist = 0.5 * dist.dot(dist)
         return np.exp(-dist)
 
-    def calculate_bias_matrix(self,colvars,sigmas,heights,wall,thetas,n_evals,stride):
+    def calculate_bias_matrix(self,colvars,boundaries,sigmas,heights,wall,thetas,n_evals,stride):
         """
         Evaluate the bias matrix by looping over time. A recursive formula is
         used so that the evaluation scale as T*(T-1) where T is the number of
@@ -34,6 +35,7 @@ class Atlas(object):
         Parameters
         ----------
         colvars : the values of the collective variables
+        boundaries : the values of the periodic boundary conditions as [min,max]*n_cvs
         sigmas : the covariances use to evaluate the overlap kernel
         heights : the heights of the hills deposited in the simulations
         wall : the values of the restraint acting in the simulation
@@ -56,7 +58,7 @@ class Atlas(object):
                 for minimum in range(n_minima):
                     start = int(minimum*dims) ; end = int(minimum*dims+dims)
                     switch = thetas[upper_index,minimum]*thetas[k,minimum]
-                    sum_bias += self.kernel(colvars[upper_index,start:end],colvars[k,start:end],sigmas[k,start:end])*heights[k]*switch
+                    sum_bias += self.kernel(colvars[upper_index,start:end],colvars[k,start:end],sigmas[k,start:end],boundaries[start:end])*heights[k]*switch
 
             bias_matrix[i,i] = sum_bias
 
@@ -70,7 +72,7 @@ class Atlas(object):
                     for minimum in range(n_minima):
                         start = int(minimum*dims) ; end = int(minimum*dims)+dims
                         switch = thetas[ref_index,minimum]*thetas[t,minimum]
-                        sum_bias += self.kernel(colvars[ref_index,start:end],colvars[t,start:end],sigmas[t,start:end])*heights[t]*switch
+                        sum_bias += self.kernel(colvars[ref_index,start:end],colvars[t,start:end],sigmas[t,start:end],boundaries[start:end])*heights[t]*switch
 
                 bias_matrix[j+1,i] = bias_matrix[j,i] + sum_bias
 
@@ -83,11 +85,12 @@ class Atlas(object):
 
     @staticmethod
     @nb.jit
-    def calculate_bias_matrix_nb(colvars,sigmas,heights,wall,thetas,n_evals,stride,dims):
+    def calculate_bias_matrix_nb(colvars,boundaries,sigmas,heights,wall,thetas,n_evals,stride,dims):
         n_minima = len(thetas[0])
         dims = int(len(colvars[0])//n_minima)
         bias_matrix = np.zeros((n_evals,n_evals))
         dist = np.zeros(dims)
+
 
         for i in range(n_evals):
             upper_index = int(i*stride)
@@ -96,7 +99,10 @@ class Atlas(object):
                 for minimum in range(n_minima):
                     start = int(minimum*dims) ; end = int(minimum*dims+dims)
                     switch = thetas[upper_index,minimum]*thetas[k,minimum]
-                    dist = (colvars[upper_index,start:end]-colvars[k,start:end])/sigmas[k,start:end]
+                    comp = colvars[upper_index,start:end]-colvars[k,start:end]
+                    corrected = comp-np.rint(comp/boundaries[start:end])*boundaries[start:end]
+                    
+                    dist = corrected/sigmas[k,start:end]
                     dist2 = 0.5 * dist.dot(dist)
                     sum_bias += np.exp(-dist2)*heights[k]*switch
 
@@ -112,7 +118,10 @@ class Atlas(object):
                     for minimum in range(n_minima):
                         start = int(minimum*dims) ; end = int(minimum*dims)+dims
                         switch = thetas[ref_index,minimum]*thetas[t,minimum]
-                        dist = (colvars[ref_index,start:end]-colvars[t,start:end])/sigmas[t,start:end]
+                        comp = colvars[ref_index,start:end]-colvars[t,start:end]
+                        corrected = comp-np.rint(comp/boundaries[start:end])*boundaries[start:end]
+
+                        dist = corrected/sigmas[t,start:end]
                         dist2 = 0.5 * dist.dot(dist)
                         sum_bias += np.exp(-dist2)*heights[t]*switch
 

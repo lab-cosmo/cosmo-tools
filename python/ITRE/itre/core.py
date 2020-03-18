@@ -4,6 +4,7 @@ import numba as nb
 from .metadynamics import Metadynamics
 from .atlas import Atlas
 from .utils import printitre
+import json
 
 class Itre(object):
     """ This class implement the Iterative Trajectory Reweighing method,
@@ -35,6 +36,7 @@ class Itre(object):
             object.__setattr__(self,'{}'.format(el),None)
 
         self.__setattr__('stride',10)
+        self.__setattr__('colvars',None)
         self.__setattr__('kT',1.0)
         self.__setattr__('beta',1.0)
         self.__setattr__('iterations',20)
@@ -43,6 +45,7 @@ class Itre(object):
         self.__setattr__('has_thetas',False)
         self.__setattr__('use_numba',False)
         self.__setattr__('has_periodicity',False)
+        self.__setattr__('boundary_lengths',None)
 
     def print_dict(self):
         """
@@ -52,38 +55,38 @@ class Itre(object):
 
         dd={
         'colvars_file':'a file containing the collective variables directly \
-                        used to construct the potential',
+used to construct the potential',
         'heights_file':'a file containing the heights of the hill as a function \
-                        of time',
+of time',
         'sigmas_file':'the sigma or covariance used in the Gaussian functions \
-                       to reposit the repulsive bias',
+to reposit the repulsive bias',
         'kT':'kT in the right units',
         'stride':' the stride used to evaluate the bias matrix (hence c(t)). \
-                   This is useful to avoid calculating c(t) at every step',
+This is useful to avoid calculating c(t) at every step',
         'thetas_file':' for a ATLAS calculations, the activation functions of \
-                        all the basins.',
+all the basins.',
         'iterations':'How many self consistent iterations to do.',
         'starting_height':'The original height of the Gaussian used in the \
-                           calculation',
+calculation',
         'wall_file': 'a file containing the potential from restraint acting \
-                      on the simulation.',
+on the simulation.',
         'has_thetas':'for an ATLAS calculation set True if we set thetas \
-                      directly, not from a json object',
+directly, not from a json object',
         'use_numba':'wether to use numba or not.',
         'boundaries_file':'this directive tells Itre to read a file from which \
-                           the boundaries of each CVs are readed. If a CVs is \
-                           not bounded, then the string \"unbounded\" is expected.',
+the boundaries of each CVs are readed. If a CVs is \
+not bounded, then the string \"unbounded\" is expected.',
         'boundaries':'Altenatively, one can provide the boundaries directly \
-                      as a numpy array, with the \
-                      the minimum and maximum of the CV. If \"bounded\"  \
-                      is present, then the minimum and maximum value of the CVs \
-                      are used. If \"unbounded\" is present than the CVs is \
-                      treated as non periodic. However, since the code assume \
-                      that periodicity has to be enforced, this result is \
-                      obtained by using a periodicity that is larger than the \
-                      |max-min|/2. If nothing is specified, all the CVs are \
-                      assumed to be unbounded. This key has priority over \
-                      \" boundaries_file\".'
+as a numpy array, with the \
+the minimum and maximum of the CV. If \"bounded\"  \
+is present, then the minimum and maximum value of the CVs \
+are used. If \"unbounded\" is present than the CVs is \
+treated as non periodic. However, since the code assume \
+that periodicity has to be enforced, this result is \
+obtained by using a periodicity that is larger than the \
+|max-min|/2. If nothing is specified, all the CVs are \
+assumed to be unbounded. This key has priority over \
+\" boundaries_file\".'
         }
 
 
@@ -177,6 +180,9 @@ class Itre(object):
                      variables
         """
 
+        if self.colvars is None:
+            raise ValueError('Colvars need to be setted!')
+
         n_cvs = len(self.colvars[0])
 
         if boundaries is None:
@@ -184,6 +190,7 @@ class Itre(object):
             boundaries = ['unbounded']*n_cvs*2
 
         float_boundaries = []
+        float_lengths = []
 
         for k in range(n_cvs):
             el1 = boundaries[2*k]
@@ -197,28 +204,42 @@ class Itre(object):
             if el1 == 'unbounded':
                 min = np.amin(self.colvars.T[k])
                 max = 5*np.amax(self.colvars.T[k])
-            elif el1 == 'bounded':
+
+            if el1 == 'bounded':
                 min = np.amin(self.colvars.T[k])
-            elif el2 == 'bounded':
-                max = np.amin(self.colvars.T[k])
             elif isinstance(el1,float):
                 min = el1
+
+            if el2 == 'bounded':
+                max = np.amin(self.colvars.T[k])
             elif isinstance(el2,float):
                 max = el2
 
-
             float_boundaries.append(min)
             float_boundaries.append(max)
+            float_lengths.append(max-min)
 
         float_boundaries = np.array(float_boundaries)
+        float_lengths = np.array(float_lengths)
+
         if len(float_boundaries) != 2*n_cvs:
             raise ValueError("Something went wrong in the association of the \
                               periodic boundaries. You have a mismatch between \
                               the number of variables and boundaries.")
 
+        if len(float_lengths) != n_cvs:
+            raise ValueError("Something went wrong in the association of the \
+                              periodic boundaries. You have a mismatch between \
+                              the number of variables and boundaries.")
+
+
         self.__setattr__('boundaries',float_boundaries)
+        self.__setattr__('boundary_lengths',float_lengths)
         self.__setattr__('has_periodicity',True)
         printitre("Periodic boundary has been setted!")
+
+        for k in range(n_cvs):
+            printitre("CV {} has boundaries {} {} with a domain of {}".format(k,float_boundaries[2*k],float_boundaries[2*k+1],float_lengths[k]))
 
 
     def calculate_bias_matrix(self):
@@ -242,6 +263,7 @@ class Itre(object):
             if self.use_numba:
                 printitre("With numba enabled.")
                 matrix = bias_scheme.calculate_bias_matrix_nb(self.colvars,
+                                                              self.boundary_lengths,
                                                               self.sigmas,
                                                               self.heights,
                                                               self.wall,
@@ -252,6 +274,7 @@ class Itre(object):
             else:
                 printitre("With numba disabled")
                 matrix = bias_scheme.calculate_bias_matrix(self.colvars,
+                                                           self.boundary_lengths,
                                                            self.sigmas,
                                                            self.heights,
                                                            self.wall,
@@ -264,6 +287,7 @@ class Itre(object):
             if self.use_numba:
                 printitre("With numba enabled.")
                 matrix = bias_scheme.calculate_bias_matrix_nb(self.colvars,
+                                                              self.boundary_lengths,
                                                               self.sigmas,
                                                               self.heights,
                                                               self.wall,
@@ -273,6 +297,7 @@ class Itre(object):
             else:
                 printitre("With numba disabled")
                 matrix = bias_scheme.calculate_bias_matrix(self.colvars,
+                                                           self.boundary_lengths,
                                                            self.sigmas,
                                                            self.heights,
                                                            self.wall,
@@ -292,8 +317,9 @@ class Itre(object):
         """
         self.__setattr__('beta',1/self.kT)
 
-        if not self.has_periodicity:
+        if self.boundary_lengths is None:
             self.set_boundaries()
+
 
         if not self.has_matrix:
             printitre("The lagged potential matrix was not calculated")

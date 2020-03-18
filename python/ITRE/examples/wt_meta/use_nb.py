@@ -30,15 +30,13 @@ for ss in range(1000,len(colvars),100):
     end = time.time()
     print("{} steps processed in {} s".format(ss,end-start))
     times.append([ss,end-start])
-    plt.plot(new_it.ct[-1].T)
+    plt.plot(new_it.ct[-1].T,label="ITRE c (t|T={})".format(ss))
     iters = iters + 1 
 
+plt.legend(ncol=2)
 plt.show()
 
 print()
 print("Scaling summary:")
 for k in times:
     print("{} steps performed in {} seconds".format(k[0],k[1]))
-
-
-

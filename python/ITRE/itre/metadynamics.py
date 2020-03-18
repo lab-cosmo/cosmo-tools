@@ -9,7 +9,7 @@ class Metadynamics(object):
         super(Metadynamics, self).__init__()
         pass
 
-    def kernel(self,a,b,c):
+    def kernel(self,a,b,c,boundaries):
         """This function evaluate the gaussian between two points given the
            covariance
 
@@ -23,19 +23,21 @@ class Metadynamics(object):
            -------
            the value of the Gaussian overlap
         """
-        dist = (a-b)/c
+        comp = a-b-np.rint((a-b)/boundaries)*boundaries
+        dist = comp/c
         dist = 0.5 * dist.dot(dist)
         return np.exp(-dist)
 
     @staticmethod
     @nb.jit
-    def calculate_bias_matrix_nb(colvars,sigmas,heights,wall,n_evals,stride,dims):
+    def calculate_bias_matrix_nb(colvars,boundaries,sigmas,heights,wall,n_evals,stride,dims):
         bias_matrix = np.zeros((n_evals,n_evals))
         dist = np.zeros(dims)
 
         for i in range(n_evals):
             for k in range(i*stride):
-                dist = (colvars[i*stride]-colvars[k])/sigmas[k]
+                comp = (colvars[i*stride]-colvars[k]) - np.rint((colvars[i*stride]-colvars[k])/boundaries)*boundaries
+                dist = comp/sigmas[k]
                 dist2 = 0.5 * dist.dot(dist)
                 bias_matrix[i,i] += np.exp(-dist2)*heights[k]
 
@@ -43,7 +45,8 @@ class Metadynamics(object):
             for j in range(i,n_evals-1):
                 bias_sum = 0.0
                 for t in range(j*stride,(j+1)*stride):
-                    dist = (colvars[i*stride]-colvars[t])/sigmas[t]
+                    comp = (colvars[i*stride]-colvars[t]) - np.rint((colvars[i*stride]-colvars[t])/boundaries)*boundaries
+                    dist = comp/sigmas[t]
                     dist2 = 0.5 * dist.dot(dist)
                     bias_sum += np.exp(-dist2)*heights[t]
 
@@ -56,7 +59,7 @@ class Metadynamics(object):
 
         return bias_matrix
 
-    def calculate_bias_matrix(self,colvars,sigmas,heights,wall,n_evals,stride):
+    def calculate_bias_matrix(self,colvars,boundaries,sigmas,heights,wall,n_evals,stride):
         """
         Evaluate the bias matrix by looping over time. A recursive formula is
         used so that the evaluation scale as T*(T-1) where T is the number of
@@ -80,7 +83,7 @@ class Metadynamics(object):
         for i in range(n_evals):
             upper_index = int(i*stride)
             for k in range(upper_index):
-                bias_matrix[i,i] += self.kernel(colvars[upper_index],colvars[k],sigmas[k])*heights[k]
+                bias_matrix[i,i] += self.kernel(colvars[upper_index],colvars[k],sigmas[k],boundaries)*heights[k]
 
         for i in range(n_evals):
             ref_index= int(i*stride)
@@ -89,7 +92,7 @@ class Metadynamics(object):
                 upper_index = int((j+1)*stride)
                 bias_sum = 0.0
                 for t in range(lower_index,upper_index):
-                    bias_sum += self.kernel(colvars[ref_index],colvars[t],sigmas[t])*heights[t]
+                    bias_sum += self.kernel(colvars[ref_index],colvars[t],sigmas[t],boundaries)*heights[t]
 
                 bias_matrix[j+1,i] = bias_matrix[j,i] + bias_sum
 

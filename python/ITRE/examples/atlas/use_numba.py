@@ -36,4 +36,3 @@ for ss in range(2,end+3,end):
    plt.plot(plumed_ct)
    plt.plot(new_it.ct[-1].T)
    plt.show()
-

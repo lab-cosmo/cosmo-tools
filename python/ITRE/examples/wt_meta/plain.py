@@ -26,9 +26,13 @@ end=time.time()
 raw_time=end-start
 print("execution completed in {}".format(raw_time))
 
-plt.plot(it.instantaneous_bias)
-plt.plot(i_bias[::it.stride])
+ref_ct = it.ct[-1].T
+
+plt.plot(it.instantaneous_bias,label="V(s,t) itre")
+plt.plot(i_bias[::it.stride],label="V(s,t)")
+plt.plot(ref_ct,label="c(t)")
+plt.legend()
 plt.show()
 
-ref_ct = it.ct[-1].T
+
 np.savetxt('c_t.dat',ref_ct)

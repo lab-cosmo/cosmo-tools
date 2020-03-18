@@ -20,16 +20,16 @@ it.use_numba=False
 
 plumed_ct=np.loadtxt('c_t_{}'.format(it.stride))
 
-
 start=time.time()
 it.calculate_c_t()
 end=time.time()
 raw_time=end-start
 ref_ct = it.ct[-1].T
-plt.plot(it.instantaneous_bias)
-plt.plot(i_bias[::it.stride],'--')
-plt.plot(ref_ct,'o')
-plt.plot(plumed_ct,'.')
+plt.plot(it.instantaneous_bias,label="V(s,t) itre")
+plt.plot(i_bias[::it.stride],'--',label="V(s,t)")
+plt.plot(ref_ct,'o',label="ITRE c(t)")
+plt.plot(plumed_ct,'.',label="Plumed c(t)")
+plt.legend()
 plt.show()
 
 print("bias matrix:{}".format(it.bias_matrix[30,30]))
@@ -58,12 +58,14 @@ for ss in list_ss:
     start = time.time()
     new_it.calculate_c_t()
     end = time.time()
-    plt.plot(new_it.instantaneous_bias)
-    plt.plot(i_bias[::new_it.stride])
+    plt.plot(new_it.instantaneous_bias,label="V(s,t) itre")
+    plt.plot(i_bias[::new_it.stride],label="V(s,t)")
+    plt.legend()
     plt.show()
-    plt.plot(new_it.ct[-1].T)
-    plt.plot(ref_ct,'-.')
-    plt.plot(plumed_ct,'--',alpha=0.5)
+    plt.plot(new_it.ct[-1].T,label="ITRE c(t) numba")
+    plt.plot(ref_ct,'-.',label="ITRE c(t) w/o numba")
+    plt.plot(plumed_ct,'--',alpha=0.5,label="Plumed c(t)")
+    plt.legend()
     plt.show()
     plt.matshow(new_it.bias_matrix)
     plt.show()
