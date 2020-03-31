@@ -183,7 +183,11 @@ assumed to be unbounded. This key has priority over \
         if self.colvars is None:
             raise ValueError('Colvars need to be setted!')
 
-        n_cvs = len(self.colvars[0])
+        if len(colvars.shape) == 1:
+            n_cvs = len(self.colvars)
+        elif len(colvars.shape) == 2:
+            n_cvs = len(self.colvars[0])
+
 
         if boundaries is None:
             printitre("Guessing the periodicity!")
