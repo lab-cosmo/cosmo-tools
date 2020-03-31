@@ -37,6 +37,7 @@ class Itre(object):
 
         self.__setattr__('stride',10)
         self.__setattr__('colvars',None)
+        self.__setattr__('n_cvs',None)
         self.__setattr__('kT',1.0)
         self.__setattr__('beta',1.0)
         self.__setattr__('iterations',20)
@@ -112,6 +113,9 @@ assumed to be unbounded. This key has priority over \
 
         if os.path.isfile(self.colvars_file):
             colvars = np.loadtxt(self.colvars_file)
+            self.__setattr__('colvars',colvars)
+            self.__setattr__('n_cvs',self.__get_num_colvars(colvars))
+
         if os.path.isfile(self.sigmas_file):
             sigmas = np.loadtxt(self.sigmas_file)
             if len(colvars)!=len(sigmas):
@@ -141,9 +145,9 @@ assumed to be unbounded. This key has priority over \
         if self.boundaries_file is not None:
             if os.path.isfile(self.boundaries_file):
                 boundaries = np.loadtxt(self.boundaries_file)
-                if len(colvars[0])>len(boundaries/2):
+                if self.n_cvs > len(boundaries/2):
                     raise ValueError('There are more CVs than boundaries')
-                if len(colvars[0])<len(boundaries/2):
+                if self.n_cvs < len(boundaries/2):
                     raise ValueError('There are less CVs than boundaries')
         elif self.boundaries is not None:
             boundaries = self.boundaries
@@ -151,7 +155,6 @@ assumed to be unbounded. This key has priority over \
             printitre("Automatic assigning the boundary to the CVs.")
             boundaries = None
 
-        self.__setattr__('colvars',colvars)
         self.__setattr__('wall',wall)
         self.__setattr__('sigmas',sigmas)
         self.__setattr__('heights',heights)
@@ -164,6 +167,20 @@ assumed to be unbounded. This key has priority over \
         self.__setattr__('n_evals',int(self.steps//self.stride))
 
         self.set_boundaries(boundaries)
+
+    def __get_num_colvars(self,array):
+        """
+        Get the number of CVs passed to the file
+        """
+        try: 
+            ln = len(array[0]) 
+        except: 
+            try: 
+                ln = 1 
+            except: 
+                raise ValueError("Unable to get the number of colvars") 
+        
+        return ln
 
 
     def set_boundaries(self,boundaries=None):
@@ -183,20 +200,16 @@ assumed to be unbounded. This key has priority over \
         if self.colvars is None:
             raise ValueError('Colvars need to be setted!')
 
-        if len(colvars.shape) == 1:
-            n_cvs = len(self.colvars)
-        elif len(colvars.shape) == 2:
-            n_cvs = len(self.colvars[0])
-
+        self.__setattr__('n_cvs',self.__get_num_colvars(self.colvars))
 
         if boundaries is None:
             printitre("Guessing the periodicity!")
-            boundaries = ['unbounded']*n_cvs*2
+            boundaries = ['unbounded']*self.n_cvs*2
 
         float_boundaries = []
         float_lengths = []
 
-        for k in range(n_cvs):
+        for k in range(self.n_cvs):
             el1 = boundaries[2*k]
             el2 = boundaries[2*k+1]
 
@@ -226,12 +239,12 @@ assumed to be unbounded. This key has priority over \
         float_boundaries = np.array(float_boundaries)
         float_lengths = np.array(float_lengths)
 
-        if len(float_boundaries) != 2*n_cvs:
+        if len(float_boundaries) != 2*self.n_cvs:
             raise ValueError("Something went wrong in the association of the \
                               periodic boundaries. You have a mismatch between \
                               the number of variables and boundaries.")
 
-        if len(float_lengths) != n_cvs:
+        if len(float_lengths) != self.n_cvs:
             raise ValueError("Something went wrong in the association of the \
                               periodic boundaries. You have a mismatch between \
                               the number of variables and boundaries.")
@@ -242,7 +255,7 @@ assumed to be unbounded. This key has priority over \
         self.__setattr__('has_periodicity',True)
         printitre("Periodic boundary has been setted!")
 
-        for k in range(n_cvs):
+        for k in range(self.n_cvs):
             printitre("CV {} has boundaries {} {} with a domain of {}".format(k,float_boundaries[2*k],float_boundaries[2*k+1],float_lengths[k]))
 
 
@@ -274,7 +287,7 @@ assumed to be unbounded. This key has priority over \
                                                               self.thetas,
                                                               self.n_evals,
                                                               self.stride,
-                                                        len(self.colvars[0]))
+                                                              self.n_cvs)
             else:
                 printitre("With numba disabled")
                 matrix = bias_scheme.calculate_bias_matrix(self.colvars,
@@ -297,7 +310,7 @@ assumed to be unbounded. This key has priority over \
                                                               self.wall,
                                                               self.n_evals,
                                                               self.stride,
-                                                        len(self.colvars[0]))
+                                                              self.n_cvs)
             else:
                 printitre("With numba disabled")
                 matrix = bias_scheme.calculate_bias_matrix(self.colvars,
