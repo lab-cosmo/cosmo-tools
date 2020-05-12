@@ -46,6 +46,7 @@ class Itre(object):
         self.__setattr__('has_thetas',False)
         self.__setattr__('use_numba',False)
         self.__setattr__('has_periodicity',False)
+        self.__setattr__('has_residual',False)
         self.__setattr__('boundary_lengths',None)
 
     def print_dict(self):
@@ -73,6 +74,8 @@ calculation',
 on the simulation.',
         'has_thetas':'for an ATLAS calculation set True if we set thetas \
 directly, not from a json object',
+        'has_residual':'for an ATLAS calculation set True if you used the  \
+residual True keyword',
         'use_numba':'wether to use numba or not.',
         'boundaries_file':'this directive tells Itre to read a file from which \
 the boundaries of each CVs are readed. If a CVs is \
@@ -172,14 +175,14 @@ assumed to be unbounded. This key has priority over \
         """
         Get the number of CVs passed to the file
         """
-        try: 
-            ln = len(array[0]) 
-        except: 
-            try: 
-                ln = 1 
-            except: 
-                raise ValueError("Unable to get the number of colvars") 
-        
+        try:
+            ln = len(array[0])
+        except:
+            try:
+                ln = 1
+            except:
+                raise ValueError("Unable to get the number of colvars")
+
         return ln
 
 
@@ -209,9 +212,9 @@ assumed to be unbounded. This key has priority over \
         float_boundaries = []
         float_lengths = []
 
-        for k in range(self.n_cvs):
-            el1 = boundaries[2*k]
-            el2 = boundaries[2*k+1]
+        if self.n_cvs == 1:
+            el1 = boundaries[0]
+            el2 = boundaries[1]
 
             if el1 == 'unbounded' and el2 != 'unbounded' \
             or el2 == 'unbounded' and el1 != 'unbounded':
@@ -219,22 +222,51 @@ assumed to be unbounded. This key has priority over \
                                   one value. It has to be periodic on both side.")
 
             if el1 == 'unbounded':
-                min = np.amin(self.colvars.T[k])
-                max = 5*np.amax(self.colvars.T[k])
+                mn = np.amin(self.colvars)
+                mx = 5*np.amax(self.colvars)
 
             if el1 == 'bounded':
-                min = np.amin(self.colvars.T[k])
+                mn = np.amin(self.colvars)
             elif isinstance(el1,float):
-                min = el1
+                mn = el1
 
             if el2 == 'bounded':
-                max = np.amin(self.colvars.T[k])
+                mx = np.amin(self.colvars)
             elif isinstance(el2,float):
-                max = el2
+                mx = el2
 
-            float_boundaries.append(min)
-            float_boundaries.append(max)
-            float_lengths.append(max-min)
+            float_boundaries.append(mn)
+            float_boundaries.append(mx)
+            float_lengths.append(mx-mn)
+
+        else:
+
+            for k in range(self.n_cvs):
+                el1 = boundaries[2*k]
+                el2 = boundaries[2*k+1]
+
+                if el1 == 'unbounded' and el2 != 'unbounded' \
+                or el2 == 'unbounded' and el1 != 'unbounded':
+                    raise ValueError("You cannot have a CVs that is periodic only on\
+                                      one value. It has to be periodic on both side.")
+
+                if el1 == 'unbounded':
+                    mn = np.amin(self.colvars.T[k])
+                    mx = 5*np.amax(self.colvars.T[k])
+
+                if el1 == 'bounded':
+                    mn = np.amin(self.colvars.T[k])
+                elif isinstance(el1,float):
+                    mn = el1
+
+                if el2 == 'bounded':
+                    mx = np.amin(self.colvars.T[k])
+                elif isinstance(el2,float):
+                    mx = el2
+
+                float_boundaries.append(mn)
+                float_boundaries.append(mx)
+                float_lengths.append(mx-mn)
 
         float_boundaries = np.array(float_boundaries)
         float_lengths = np.array(float_lengths)
@@ -274,9 +306,14 @@ assumed to be unbounded. This key has priority over \
                       lagged potential. The instantaneous potential is
                       equal to the diagonal of this matrix
         """
+
         if self.has_thetas:
             printitre(" You are reweighing an ATLAS calculations ")
             bias_scheme = Atlas()
+            residual_weights = 0.0
+            if self.has_residual:
+                residual_weights = 1.0
+            printitre(" with the residual activated ")
             if self.use_numba:
                 printitre("With numba enabled.")
                 matrix = bias_scheme.calculate_bias_matrix_nb(self.colvars,
@@ -287,7 +324,8 @@ assumed to be unbounded. This key has priority over \
                                                               self.thetas,
                                                               self.n_evals,
                                                               self.stride,
-                                                              self.n_cvs)
+                                                              self.n_cvs,
+                                                              residual_weights)
             else:
                 printitre("With numba disabled")
                 matrix = bias_scheme.calculate_bias_matrix(self.colvars,
@@ -297,7 +335,8 @@ assumed to be unbounded. This key has priority over \
                                                            self.wall,
                                                            self.thetas,
                                                            self.n_evals,
-                                                           self.stride)
+                                                           self.stride,
+                                                           residual_weights)
         else:
             printitre(" You are reweighing a METAD calculations ")
             bias_scheme = Metadynamics()
