@@ -313,7 +313,7 @@ assumed to be unbounded. This key has priority over \
             residual_weights = 0.0
             if self.has_residual:
                 residual_weights = 1.0
-            printitre(" with the residual activated ")
+                printitre(" with the residual activated ")
             if self.use_numba:
                 printitre("With numba enabled.")
                 matrix = bias_scheme.calculate_bias_matrix_nb(self.colvars,

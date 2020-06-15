@@ -52,7 +52,7 @@ class Atlas(object):
         -------
         bias_matrix : a T*T float matrix containing the lagged potential matrix
         """
-        n_minima = len(thetas[0])
+        n_minima = len(thetas[0])-1
         dims = int(len(colvars[0])//n_minima)
         bias_matrix = np.zeros((n_evals,n_evals))
         component_weights = np.ones(dims)
@@ -64,10 +64,11 @@ class Atlas(object):
             upper_index = int(i*stride)
             sum_bias = 0.0
             for k in range(upper_index+1):
+                renorm = thetas[k].dot(thetas[k])
                 for minimum in range(n_minima):
                     start = int(minimum*dims) ; end = int(minimum*dims+dims)
                     switch = thetas[upper_index,minimum]*thetas[k,minimum]
-                    sum_bias += self.kernel(colvars[upper_index,start:end],colvars[k,start:end],sigmas[k,start:end],boundaries[start:end],residual_w,component_weights)*heights[k]*switch
+                    sum_bias += self.kernel(colvars[upper_index,start:end],colvars[k,start:end],sigmas[k,start:end],boundaries[start:end],residual_w,component_weights)*heights[k]*switch/renorm
 
             bias_matrix[i,i] = sum_bias
 
@@ -78,10 +79,11 @@ class Atlas(object):
                 upper_index = int((j+1)*stride)
                 sum_bias = 0.0
                 for t in range(lower_index,upper_index):
+                    renorm = thetas[t].dot(thetas[t])
                     for minimum in range(n_minima):
                         start = int(minimum*dims) ; end = int(minimum*dims)+dims
                         switch = thetas[ref_index,minimum]*thetas[t,minimum]
-                        sum_bias += self.kernel(colvars[ref_index,start:end],colvars[t,start:end],sigmas[t,start:end],boundaries[start:end],residual_w,component_weights)*heights[t]*switch
+                        sum_bias += self.kernel(colvars[ref_index,start:end],colvars[t,start:end],sigmas[t,start:end],boundaries[start:end],residual_w,component_weights)*heights[t]*switch/renorm
 
                 bias_matrix[j+1,i] = bias_matrix[j,i] + sum_bias
 
@@ -95,7 +97,7 @@ class Atlas(object):
     @staticmethod
     @nb.jit
     def calculate_bias_matrix_nb(colvars,boundaries,sigmas,heights,wall,thetas,n_evals,stride,dims,residual_w):
-        n_minima = len(thetas[0])
+        n_minima = len(thetas[0])-1
         dims = int(len(colvars[0])//n_minima)
         bias_matrix = np.zeros((n_evals,n_evals))
         dist = np.zeros(dims)
@@ -107,6 +109,7 @@ class Atlas(object):
             upper_index = int(i*stride)
             sum_bias = 0.0
             for k in range(upper_index+1):
+                renorm = thetas[k].dot(thetas[k])
                 for minimum in range(n_minima):
                     start = int(minimum*dims) ; end = int(minimum*dims+dims)
                     switch = thetas[upper_index,minimum]*thetas[k,minimum]
@@ -120,7 +123,7 @@ class Atlas(object):
                     dist = corrected/sigmas[k,start:end]
                     dist3 = 0.5 * dist.dot(dist)
 
-                    sum_bias += (np.exp(-dist2)+residual_w*np.exp(-dist3))*heights[k]*switch
+                    sum_bias += (np.exp(-dist2)+residual_w*np.exp(-dist3))*heights[k]*switch/renorm
 
             bias_matrix[i,i] = sum_bias
 
@@ -131,6 +134,7 @@ class Atlas(object):
                 upper_index = int((j+1)*stride)
                 sum_bias = 0.0
                 for t in range(lower_index,upper_index):
+                    renorm = thetas[t].dot(thetas[t])
                     for minimum in range(n_minima):
                         start = int(minimum*dims) ; end = int(minimum*dims)+dims
                         switch = thetas[ref_index,minimum]*thetas[t,minimum]
@@ -145,7 +149,7 @@ class Atlas(object):
                         dist = corrected/sigmas[t,start:end]
                         dist3 = 0.5 * dist.dot(dist)
 
-                        sum_bias += (np.exp(-dist2)+residual_w*np.exp(-dist3))*heights[t]*switch
+                        sum_bias += (np.exp(-dist2)+residual_w*np.exp(-dist3))*heights[t]*switch/renorm
 
                 bias_matrix[j+1,i] = bias_matrix[j,i] + sum_bias
 
