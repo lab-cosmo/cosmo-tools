@@ -10,7 +10,7 @@ heights = data[1:,-1]
 sigmas = np.ones(colvars.shape)*0.1
 
 th = np.loadtxt('THETA')
-thetas = th[1:,1:-1]
+thetas = th[1:,1:]
 wall = np.zeros(len(colvars))
 
 limit = 100
