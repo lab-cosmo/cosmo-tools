@@ -31,9 +31,11 @@ function get_lines
 cp "${PREFIX}.tex" __sb_tmp1
 
 #encapsulates macro definitions and include files in general
+
 MACROS=`grep \\\input\{ __sb_tmp1 | sed -e '{s/.*input[^{]*{ *\([^}]*\) *}.*/\1/}'`
-for a in $MACROS
-do
+while [ "$MACROS" ]; do  # iteratively includes inputs
+  for a in $MACROS
+  do
     echo "INCLUDING MACRO $a"
     LN=`grep -n \\\input"{$a}" __sb_tmp1`
     LN=${LN%%[^0-9]*}
@@ -47,6 +49,8 @@ do
     fi;fi;
     tail -n $POST __sb_tmp1 >> __sb_tmp2
     mv __sb_tmp2 __sb_tmp1
+  done
+  MACROS=`grep \\\input\{ __sb_tmp1 | sed -e '{s/.*input[^{]*{ *\([^}]*\) *}.*/\1/}'`
 done
 
 #removes comments from file
