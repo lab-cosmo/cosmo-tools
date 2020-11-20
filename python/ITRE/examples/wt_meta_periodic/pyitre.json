@@ -1,0 +1,10 @@
+{
+"stride":10,
+"kT":300,
+"colvars_file":"COLVARS",
+"heights_file":"HEIGHTS",
+"sigmas_file":"SIGMAS",
+"starting_height":2.0,
+"iterations":20,
+"boundaries":[-3.14,3.14,-3.14,3.14]
+}
