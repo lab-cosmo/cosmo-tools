@@ -5,10 +5,11 @@ import json
 import sys
 import argparse
 
+scholarly.set_logger(True)
 def fetch_citations(author, filesave="citations.json", proxy="",  proxy_list=""):
     if proxy != "":
         print("Setting up proxy ", proxy)
-        scholarly.use_proxy(http=proxy, https=proxy)
+        scholarly.use_proxy(scholarly.SingleProxy(http=proxy, https=proxy))
     if proxy_list != "":
         lproxies = open(proxy_list, 'r').readlines() 
         def proxy_gen():
@@ -20,32 +21,31 @@ def fetch_citations(author, filesave="citations.json", proxy="",  proxy_list="")
             proxy_gen.counter += 1
             return proxy
         proxy_gen.counter = 0
-        scholarly.set_proxy_generator(proxy_gen)
+        scholarly.use_proxy(proxy_gen)
 
-    print("Looking up "+author)    
-    search=scholarly.search_author(author)    
-    author=next(search).fill()
+    print("Looking up "+author)
+    search = scholarly.search_author(author)    
+    author = scholarly.fill(next(search))
     publications = []
 
-    for i, pub in enumerate(author.publications):
-        cites = pub.bib["cites"]       # often this gets messed up upon .fill()
-        if "year" in pub.bib:
-            pubyear = pub.bib["year"]  # also this gets messed up upon .fill()
-            pub = pub.fill()
-            pub.bib["year"] = pubyear
+    for i, pub in enumerate(author['publications']):
+        cites = pub['num_citations']       # often this gets messed up upon .fill()
+        if "pub_year" in pub['bib']:
+            pubyear = pub['bib']["pub_year"]  # also this gets messed up upon .fill()
+            pub = scholarly.fill(pub)
+            pub['bib']["pub_year"] = pubyear
         else:
-            pub = pub.fill()
-            if not "year" in pub.bib: 
+            pub = scholarly.fill(pub)
+            if not "pub_year" in pub.bib: 
                 # skip publications that really don't have a year, 
                 # they probably are crap that was picked up by the search robot
                 continue
         
-        pub.bib['cites'] = cites
-        print("Fetching: "+str(i)+"/"+str(len(author.publications))+": "+pub.bib["title"]+" ("+str(pub.bib["year"])+")")
-        pub.bib.pop("abstract", None)
-        dpub = pub.__dict__
-        dpub.pop("nav", None) # removes non-serializable member
-        publications.append(dpub)
+        pub['num_citations'] = cites
+        print("Fetching: "+str(i)+"/"+str(len(author['publications']))+": "+pub['bib']["title"]+" ("+str(pub['bib']["pub_year"])+")")
+        pub['bib'].pop("abstract", None)
+        pub.pop("source", None)
+        publications.append(pub)
     f = open(filesave,"w")
     f.write(json.dumps(publications))
     f.close()

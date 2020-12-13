@@ -83,6 +83,9 @@
 \NewDocumentCommand{\frho}{o e{_} e{^}}{
 \field[#1]{\rho}_{#2}^{#3}
 }
+\NewDocumentCommand{\fdelta}{o e{_} e{^}}{
+\field[#1]{\delta}_{#2}^{#3}
+}
 
 % shortcuts for commonly used feature indices
 
@@ -120,6 +123,9 @@
 }
 \NewDocumentCommand{\enl}{e_}{
 \IfValueTF{#1}{\en_{#1}l_#1}{\en l}
+}
+\NewDocumentCommand{\nl}{e_}{
+\IfValueTF{#1}{n_{#1}l_#1}{n l}
 }
 
 % SOAP shortcuts - starred version removes ; separators
