@@ -40,17 +40,16 @@ while [ "$MACROS" ]; do  # iteratively includes inputs
     LN=`grep -n \\\input"{$a}" __sb_tmp1`
     LN=${LN%%[^0-9]*}
     ((PRE=$LN-1))
-    TOTL=`cat __sb_tmp1 | wc -l `
-    ((PRE=$LN-1))
-    ((POST=$TOTL-$LN))
+    ((POST=$LN+1))
     head -n $PRE __sb_tmp1 > __sb_tmp2
     if [ -e "$a" ]; then cat "$a" >> __sb_tmp2
     else if [ -e "$a.tex" ]; then cat "$a.tex" >> __sb_tmp2
     fi;fi;
-    tail -n $POST __sb_tmp1 >> __sb_tmp2
+    tail -n +$POST __sb_tmp1 >> __sb_tmp2
     mv __sb_tmp2 __sb_tmp1
   done
   MACROS=`grep \\\input\{ __sb_tmp1 | sed -e '{s/.*input[^{]*{ *\([^}]*\) *}.*/\1/}'`
+  echo "NEW MACROS " $MACROS
 done
 
 #removes comments from file
