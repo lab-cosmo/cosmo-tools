@@ -252,7 +252,7 @@ mathtext.tt: monospace
 mathtext.it: sans:italic
 mathtext.bf: sans:bold
 mathtext.sf: sans
-mathtext.fontset: cm # dejavusans dejavuserif, cm, stix, stixsans, custom
+mathtext.fontset: dejavusans # dejavusans dejavuserif, cm, stix, stixsans, custom
 mathtext.fallback_to_cm: True
 mathtext.default: it
 
