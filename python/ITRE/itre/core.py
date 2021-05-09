@@ -48,6 +48,7 @@ class Itre(object):
         self.__setattr__('has_periodicity',False)
         self.__setattr__('has_residual',False)
         self.__setattr__('boundary_lengths',None)
+        self.__setattr__('wall',None)        
 
     def print_dict(self):
         """
