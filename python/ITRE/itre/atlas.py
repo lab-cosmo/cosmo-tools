@@ -42,7 +42,7 @@ class Atlas(object):
         boundaries : the values of the periodic boundary conditions as [min,max]*n_cvs
         sigmas : the covariances use to evaluate the overlap kernel
         heights : the heights of the hills deposited in the simulations
-        wall : the values of the restraint acting in the simulation
+        wall : the values of the restraint acting in the simulation (NB this is only a STATIC wall!)
         thetas : the values of the activation function theta for ATLAS
         n_evals :  the number of evaluation to do (T in here)
         stride : the stride between two different evaluation.
@@ -69,6 +69,7 @@ class Atlas(object):
                     start = int(minimum*dims) ; end = int(minimum*dims+dims)
                     switch = thetas[upper_index,minimum]*thetas[k,minimum]
                     sum_bias += self.kernel(colvars[upper_index,start:end],colvars[k,start:end],sigmas[k,start:end],boundaries[start:end],residual_w,component_weights)*heights[k]*switch/renorm
+                sum_bias += thetas[upper_index,-1]*thetas[k,-1]*heights[k]/renorm
 
             bias_matrix[i,i] = sum_bias
 
@@ -84,13 +85,14 @@ class Atlas(object):
                         start = int(minimum*dims) ; end = int(minimum*dims)+dims
                         switch = thetas[ref_index,minimum]*thetas[t,minimum]
                         sum_bias += self.kernel(colvars[ref_index,start:end],colvars[t,start:end],sigmas[t,start:end],boundaries[start:end],residual_w,component_weights)*heights[t]*switch/renorm
-
+                    sum_bias += thetas[ref_index,-1]*thetas[t,-1]*heights[t]/renorm
                 bias_matrix[j+1,i] = bias_matrix[j,i] + sum_bias
 
-        for i in range(n_evals):
-            upper_index = int(i*stride)
-            for j in range(i,n_evals):
-                bias_matrix[j,i] += wall[upper_index]
+        if wall is not None:
+            for i in range(n_evals):
+                upper_index = int(i*stride)
+                for j in range(i,n_evals):
+                    bias_matrix[j,i] += wall[upper_index]
 
         return bias_matrix/(1+residual_w)
 
@@ -124,6 +126,7 @@ class Atlas(object):
                     dist3 = 0.5 * dist.dot(dist)
 
                     sum_bias += (np.exp(-dist2)+residual_w*np.exp(-dist3))*heights[k]*switch/renorm
+                sum_bias += thetas[upper_index,-1]*thetas[k,-1]*heights[k]/renorm
 
             bias_matrix[i,i] = sum_bias
 
@@ -150,13 +153,14 @@ class Atlas(object):
                         dist3 = 0.5 * dist.dot(dist)
 
                         sum_bias += (np.exp(-dist2)+residual_w*np.exp(-dist3))*heights[t]*switch/renorm
-
+                    sum_bias += thetas[ref_index,-1]*thetas[t,-1]*heights[t]/renorm
                 bias_matrix[j+1,i] = bias_matrix[j,i] + sum_bias
 
 
-        for i in range(n_evals):
-            upper_index = int(i*stride)
-            for j in range(i,n_evals):
-                bias_matrix[j,i] += wall[upper_index]
+        if wall is not None:
+            for i in range(n_evals):
+                upper_index = int(i*stride)
+                for j in range(i,n_evals):
+                    bias_matrix[j,i] += wall[upper_index]
 
         return bias_matrix/(1+residual_w)

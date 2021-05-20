@@ -200,3 +200,6 @@
 % conditionally add a bibtex entry to a category. Usage
 % \addifrecent{papers}{1905}{Einstein1905}
 \newcommand{\addifrecent}[3]{\ifthenelse{#2>\cutoffyear \or #2=\cutoffyear}{\addtocategory{#1}{#3}}{}}
+
+% DOI links
+\newcommand{\doi}[1]{DOI: \href{http://doi.org/#1}{#1}}
