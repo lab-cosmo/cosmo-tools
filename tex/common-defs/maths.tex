@@ -1,0 +1,21 @@
+%%%%%%%%%%%%%%%%%%%  maths.tex %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Standard maths notation that we need to use consistently 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% include guards
+\ifdefined\COSMOMATHS
+\else
+\newcommand{\COSMOMATHS}{}
+% shortcuts for boldface and calligraphic
+\newcommand{\mcal}[1]{\ensuremath{\mathcal{#1}}}
+\newcommand{\mbf}[1]{\ensuremath{\mathbf{#1}}}
+
+% 
+
+% integral d
+\newcommand{\D}[1]{\operatorname{d}{#1}\,}
+
+% special function that we want to use consistently
+\newcommand{\Ylm}{Y^m_l}
+
+\fi % \ifdefined\COSMOMATHS

@@ -1,0 +1,30 @@
+%%%%%%%%%%%%%%%%%%%  ml-models.tex %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Miscellaneous macros used to typeset quantities that occur in the discussion
+% of machine-learning models 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+% include guards
+\ifdefined\COSMOMODELS
+\else
+\newcommand{\COSMOMODELS}{}
+\usepackage{bm,upgreek}
+
+% generic targets
+\newcommand{\y}[0]{y}
+\newcommand{\yt}[0]{\tilde{y}}
+\newcommand{\by}[0]{\mbf{\y}}
+
+% kernel function, distance function
+\newcommand{\krn}[0]{\operatorname{k}}
+\newcommand{\dst}[0]{\operatorname{d}}
+
+% feature vectors and indices
+\newcommand{\feat}{\upxi}
+\newcommand{\bfeat}[0]{\ensuremath{\bm{\upxi}}}
+\newcommand{\bfeatc}[0]{\ensuremath{\bm{\upchi}}}
+% feature matrix - we use capital xi because X is usually associated with Cartesian coordinates
+\newcommand{\bFeat}{\bm{\Xi}}
+\newcommand{\bvphi}{\bm{\upvarphi}}
+
+\fi % \ifdefined\COSMOMODELS

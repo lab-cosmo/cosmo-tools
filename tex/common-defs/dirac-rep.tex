@@ -22,13 +22,15 @@
 % coefficients, e.g. \enlk generates a n l k, while a subscript notation
 % attaches an index to each item, e.g. \nlm_1 generates n_1 l_1 m_1
 
+% include guards
+\ifdefined\DIRACREP
+\else
+\newcommand{\DIRACREP}{}
 
 \usepackage{physics}
 \usepackage{xparse}
+\input{maths}
 
-% shortcuts for boldface and calligraphic
-\newcommand{\mcal}[1]{\ensuremath{\mathcal{#1}}}
-\newcommand{\mbf}[1]{\ensuremath{\mathbf{#1}}}
 
 % a macro to typeset representations in bra-ket notation.
 % can be used either with just ket \rep|A> or bra \rep<X|
@@ -92,17 +94,17 @@
 
 % shortcuts for commonly used feature indices
 
-\newcommand{\e}{a}  % element index
+% generic feature indices
+\newcommand{\Q}[0]{Q}
+\newcommand{\q}[0]{q}
 
 % we use \bx for Cartesian basis, and \br to indicate atom positions
 \newcommand{\br}{\mbf{r}}
 \newcommand{\bx}{\mbf{x}}
 \newcommand{\bxhat}{\hat{\mbf{x}}}
 \newcommand{\brhat}{\hat{\mbf{r}}}
-% factor a
-\newcommand{\faca}{c}
-% a factor b
-\newcommand{\facb}{d_n}
+
+\newcommand{\e}{a}  % element index
 
 \NewDocumentCommand{\ex}{e_}{
 \IfValueTF{#1}{\e_{#1}\bx_{#1}}{\e\bx}
@@ -147,7 +149,6 @@
 \NewDocumentCommand{\glm}{}{\lambda\mu}
 
 % other commonly used symbols
-\newcommand{\D}[1]{\operatorname{d}{#1}\,}
 
 % symmetry operations
 \newcommand{\Shat}{\hat{S}}
@@ -158,3 +159,9 @@
 % common convergence parameters
 \newcommand{\nmax}{n_\text{max}}
 \newcommand{\lmax}{l_\text{max}}
+\newcommand{\fcut}[0]{{f_\text{cut}} }
+\newcommand{\rcut}[0]{{r_\text{cut}} }
+\newcommand{\nneigh}[0]{n_\text{neigh}}
+\newcommand{\nfeat}[0]{n_\text{feat}}
+\newcommand{\qmax}[0]{\q_\text{max}}
+\fi %\ifdefined\DIRACREP
