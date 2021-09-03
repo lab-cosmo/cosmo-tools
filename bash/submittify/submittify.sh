@@ -45,6 +45,7 @@ while [ "$MACROS" ]; do  # iteratively includes inputs
     if [ -e "$a" ]; then cat "$a" >> __sb_tmp2
     else if [ -e "$a.tex" ]; then cat "$a.tex" >> __sb_tmp2
     fi;fi;
+    echo "" >> __sb_tmp2
     tail -n +$POST __sb_tmp1 >> __sb_tmp2
     mv __sb_tmp2 __sb_tmp1
   done

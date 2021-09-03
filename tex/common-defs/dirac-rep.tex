@@ -1,25 +1,25 @@
 %%%%%%%%%%%%%%%%%%%  dirac-rep.tex %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Macros to be used top simplify typesetting the Dirac notation for ML
-% representations introduced in 
+% representations introduced in
 % Willatt, Musil, Ceriotti, J. Chem. Phys. 150 (2019) DOI: 10.1063/1.5090481
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 % Main macros are \rep and \field that can be used to typeset a bra-ket
 % notation for a representation, and the symmetrized-fields notation for
-% n-body features. 
+% n-body features.
 % Usage:
 % \rep<X|   ->    bra containing X
 % \rep|A>   ->    ket containing A
 % \rep<X||A>   -> bra-ket <X|A>
-% 
-% \field{\rho}_i^{\nu}   ->  a \rho_i^{\otimes \nu} indicating a (\nu+1)-body 
+%
+% \field{\rho}_i^{\nu}   ->  a \rho_i^{\otimes \nu} indicating a (\nu+1)-body
 %                            \rho-based representation centred on atom i
 % \field{\rho}_i[V]_i   -> \rho_i\otimes V_i indicating a mix of \rho and V
 %                             based, i-centred representations
 % \field[\lambda\mu]{\rho}_i^2   ->  \lambda-SOAP representation
-% 
+%
 % Furthermore, this contains a number of shortcuts for the density expansion
-% coefficients, e.g. \enlk generates a n l k, while a subscript notation 
+% coefficients, e.g. \enlk generates a n l k, while a subscript notation
 % attaches an index to each item, e.g. \nlm_1 generates n_1 l_1 m_1
 
 
@@ -34,7 +34,7 @@
 % can be used either with just ket \rep|A> or bra \rep<X|
 % or together, \rep <X||A>
 \NewDocumentCommand{\rep}{s d<| d|>}{%
-% flips starring behavior relative to physics package 
+% flips starring behavior relative to physics package
 \IfBooleanTF{#1}{
    \IfValueTF{#2}{
        \IfValueTF{#3}{\braket{#2}{#3}}{\bra{#2}}
@@ -53,7 +53,13 @@
 % for those who prefer the physics package \bra \ket notation
 \NewDocumentCommand{\rbra}{sm}{\IfBooleanTF{#1}{\rep*<#2|}{\rep<#2|}}
 \NewDocumentCommand{\rket}{sm}{\IfBooleanTF{#1}{\rep*|#2>}{\rep|#2>}}
-\NewDocumentCommand{\rbraket}{smm}{\IfBooleanTF{#1}{\rep*<#2||#3>}{\rep<#2||#3>}}
+\NewDocumentCommand{\rbraket}{smom}{
+    \IfBooleanTF{#1}{
+        \IfNoValueTF{#3}{\rep*<#2||#4>}{\rep*<#2|#3\rep*|#4>}
+    }{
+        \IfNoValueTF{#3}{\rep<#2||#4>}{\rep<#2|#3\rep|#4>}
+    }
+}
 
 % shortcut for CG "our way"
 \NewDocumentCommand{\cg}{m m m}{\rep<#1; #2||#3>}
@@ -67,7 +73,7 @@
 % use overline if an otimes argument is specified, or if there is a double field entry
 \IfValueTF{#5}{\overline{
   #2\IfValueT{#3}{_#3}\IfValueT{#4}{^{\otimes #4}} % first block
-  \otimes 
+  \otimes
   #5\IfValueT{#6}{_#6}\IfValueT{#7}{^{\otimes #7}} % second block
   \IfValueT{#1}{;#1}
 }}{
@@ -83,9 +89,6 @@
 \NewDocumentCommand{\frho}{o e{_} e{^}}{
 \field[#1]{\rho}_{#2}^{#3}
 }
-\NewDocumentCommand{\fdelta}{o e{_} e{^}}{
-\field[#1]{\delta}_{#2}^{#3}
-}
 
 % shortcuts for commonly used feature indices
 
@@ -96,6 +99,10 @@
 \newcommand{\bx}{\mbf{x}}
 \newcommand{\bxhat}{\hat{\mbf{x}}}
 \newcommand{\brhat}{\hat{\mbf{r}}}
+% factor a
+\newcommand{\faca}{c}
+% a factor b
+\newcommand{\facb}{d_n}
 
 \NewDocumentCommand{\ex}{e_}{
 \IfValueTF{#1}{\e_{#1}\bx_{#1}}{\e\bx}
@@ -124,9 +131,6 @@
 \NewDocumentCommand{\enl}{e_}{
 \IfValueTF{#1}{\en_{#1}l_#1}{\en l}
 }
-\NewDocumentCommand{\nl}{e_}{
-\IfValueTF{#1}{n_{#1}l_#1}{n l}
-}
 
 % SOAP shortcuts - starred version removes ; separators
 \NewDocumentCommand{\nnl}{s}{
@@ -141,3 +145,16 @@
 \IfBooleanTF{#1}{\sigma\lambda\mu}{\sigma;\lambda\mu}
 }
 \NewDocumentCommand{\glm}{}{\lambda\mu}
+
+% other commonly used symbols
+\newcommand{\D}[1]{\operatorname{d}{#1}\,}
+
+% symmetry operations
+\newcommand{\Shat}{\hat{S}}
+\newcommand{\ihat}{\hat{i}}
+\newcommand{\Rhat}{\hat{R}}
+\newcommand{\That}{\hat{t}}
+
+% common convergence parameters
+\newcommand{\nmax}{n_\text{max}}
+\newcommand{\lmax}{l_\text{max}}
