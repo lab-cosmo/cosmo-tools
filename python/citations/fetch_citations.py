@@ -1,12 +1,24 @@
 #!/usr/bin/python3
+"""
+A command-line utility and mini-library, based on scholarly, to get bibliometric data from an author 
+on Google Scholar, and to process them to extract indices and/or coauthor data.
+
+Author: Michele Ceriotti 2019
+License: LGPL
+"""
 
 from scholarly import scholarly
 import json
+import re
+from datetime import datetime
+import numpy as np
 import sys
 import argparse
 
 scholarly.set_logger(True)
+
 def fetch_citations(author, filesave="citations.json", proxy="",  proxy_list=""):
+    """ Fetch citations from google scholar using scholarly """
     if proxy != "":
         print("Setting up proxy ", proxy)
         scholarly.use_proxy(scholarly.SingleProxy(http=proxy, https=proxy))
@@ -49,6 +61,122 @@ def fetch_citations(author, filesave="citations.json", proxy="",  proxy_list="")
     f = open(filesave,"w")
     f.write(json.dumps(publications))
     f.close()
+
+def pubs_clean(pubs, start_year=1900, has_journal=True, has_title=True, 
+               journal_blacklist=["arxiv", "chemrxiv", "biorxiv", "bulletin"], 
+               no_cites_grace=3, highly_cited_grace=20, clean_citation_record=True
+              ):
+    """ Cleans up a citation record to remove preprints, ancient publications,
+        or miscellaneous probable parsing errors.
+    """
+    clean = []
+    now_year = datetime.now().year
+    for v in pubs:
+        v["bib"]["pub_year"] = int(v["bib"]["pub_year"])        
+        if v["bib"]["pub_year"]<start_year:
+            continue
+        # make sure we don't drop a decently cited article only because
+        # of some formatting quirks
+        if "num_citations" in v and v["num_citations"]>=highly_cited_grace:
+            clean.append(v) 
+            continue
+        if has_journal and "journal" not in v["bib"]:
+            continue
+        if has_title and "title" not in v["bib"]:
+            continue
+        # drops if the journal name is blacklisted 
+        # (e.g. preprints, which I love but are sadly usually not counted)
+        if "journal" in v["bib"]:
+            for j in journal_blacklist:
+                if j in v["bib"]["journal"].lower():
+                    continue
+        # old articles that collected no citations are either useless or
+        # crap picked up by the searchbot
+        if (no_cites_grace>=0 and v["bib"]["pub_year"]+no_cites_grace <= now_year and
+                len(v["cites_per_year"])==0):
+            continue
+        if clean_citation_record:
+            # removes citations that allegedly appeared before the paper was published,
+            # allowing for a 1-year margin to account for preprints
+            for y in list(v["cites_per_year"].keys()):
+                if int(y)<v["bib"]["pub_year"]-1:
+                    v["cites_per_year"].pop(y)
+        clean.append(v)
+    return clean
+
+def get_authors(pubs, cutoff=-1):
+    authors=set()
+    for pub in pubs:
+        if pub["bib"]["pub_year"]<cutoff:
+            continue
+        authors.update(set(re.split(r" and |,", pub["bib"]["author"])) )
+    authors = list(authors)
+    authors.sort()
+    return authors
+
+# Performance indicators per year
+def cites_per_year(pubs):
+    """ Counts total number of citations per year. """
+    citesy = {}
+    for p in pubs:
+        for k, nk in p["cites_per_year"].items():
+            k = int(k)
+            if k in citesy:
+                citesy[k]+=nk
+            else:
+                citesy[k]=nk
+    return citesy
+
+def papers_per_year(pubs):
+    """ Counts papers published per year. """
+    papersy = {}
+    for p in pubs:
+        y=p["bib"]["pub_year"]
+        if y in papersy:
+            papersy[y] += 1
+        else:
+            papersy[y] = 1
+    return papersy
+
+# Performance indicators per paper
+def papers_cites(pubs):
+    """ Counts total citations per paper """
+    pc = np.asarray([(p["num_citations"] if "num_citations" in p else 0) for p in pubs])
+    pc[::-1].sort()
+    return pc
+
+def papers_cites_years_table(pubs):
+    """ Makes a table with the numbers of citations per year
+        for all the papers in the publication list. """
+
+    years = []
+    paperyc = []
+    for p in pubs:
+        pcitesy = {}
+        for k, nk in p["cites_per_year"].items():
+            k = int(k)
+            if k in pcitesy:
+                pcitesy[k]+=nk
+            else:
+                pcitesy[k]=nk
+        years += list(pcitesy.keys())
+        paperyc.append(pcitesy)
+    years = list(set(years))
+    years.sort()
+    ypcites = np.zeros((len(pubs),len(years) ))
+    for ip, p in enumerate(paperyc):
+        for k,v in p.items():
+            ik = years.index(k)
+            ypcites[ip, ik] = v
+    order = np.argsort(ypcites.sum(axis=1))
+    return (np.asarray(years, int), ypcites[order[::-1]].copy(), [pubs[i] for i in order[::-1]])
+
+def h_index(pubs):
+    pc = papers_cites(pubs)
+    h = 0
+    while pc[h]>h:
+        h+=1
+    return h
 
 
 description="""
