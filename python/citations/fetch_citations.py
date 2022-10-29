@@ -48,7 +48,7 @@ def fetch_citations(author, filesave="citations.json", proxy="",  proxy_list="")
             pub['bib']["pub_year"] = pubyear
         else:
             pub = scholarly.fill(pub)
-            if not "pub_year" in pub.bib: 
+            if not "pub_year" in pub['bib']: 
                 # skip publications that really don't have a year, 
                 # they probably are crap that was picked up by the search robot
                 continue
