@@ -32,7 +32,7 @@ cp "${PREFIX}.tex" __sb_tmp1
 
 #encapsulates macro definitions and include files in general
 
-MACROS=`grep \\\input\{ __sb_tmp1 | sed -e '{s/.*input[^{]*{ *\([^}]*\) *}.*/\1/}'`
+MACROS=`grep '^[^%]*\input{' __sb_tmp1 | sed -e '{s/.*input[^{]*{ *\([^}]*\) *}.*/\1/}'`
 while [ "$MACROS" ]; do  # iteratively includes inputs
   for a in $MACROS
   do
@@ -49,7 +49,7 @@ while [ "$MACROS" ]; do  # iteratively includes inputs
     tail -n +$POST __sb_tmp1 >> __sb_tmp2
     mv __sb_tmp2 __sb_tmp1
   done
-  MACROS=`grep \\\input\{ __sb_tmp1 | sed -e '{s/.*input[^{]*{ *\([^}]*\) *}.*/\1/}'`
+  MACROS=`grep '^[^%]*\input{' __sb_tmp1 | sed -e '{s/.*input[^{]*{ *\([^}]*\) *}.*/\1/}'`
   echo "NEW MACROS " $MACROS
 done
 
