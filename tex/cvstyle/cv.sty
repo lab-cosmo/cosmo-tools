@@ -89,18 +89,21 @@
 % Bibliography formatting
 \usepackage[sorting=ydnt,bibstyle=numeric,defernumbers=true,maxnames=100,
             giveninits=true, bibencoding=utf8, terseinits=false, uniquename=init,
-            doi=false,isbn=false,natbib=true,backend=bibtex]{biblatex}
+            doi=true,isbn=false,natbib=true,backend=bibtex]{biblatex}
 
+\AtEveryBibitem{\clearfield{urldate}}
 \DeclareFieldFormat{url}{\url{#1}}
+\DeclareFieldFormat{urldate}{}
+\DeclareFieldFormat[article]{url}{}
 \DeclareFieldFormat[article]{pages}{#1}
 \DeclareFieldFormat[inproceedings]{pages}{\lowercase{pp.}#1}
 \DeclareFieldFormat[incollection]{pages}{\lowercase{pp.}#1}
 \DeclareFieldFormat[article]{volume}{\mkbibbold{#1}}
 \DeclareFieldFormat[article]{number}{\mkbibparens{#1}}
 \DeclareFieldFormat[article]{title}{\MakeCapital{#1}}
-\DeclareFieldFormat[article]{url}{}
 \DeclareFieldFormat[inproceedings]{title}{#1}
 \DeclareFieldFormat{shorthandwidth}{#1}
+\DeclareFieldFormat{date}{\thefield{year}} % year only, no month
 \DeclareFieldFormat{extradate}{}
 
 \ExecuteBibliographyOptions{useprefix=true}
