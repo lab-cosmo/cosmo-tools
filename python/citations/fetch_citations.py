@@ -1,4 +1,4 @@
-#!/usr/bin/python3
+#!/usr/bin/env python3
 """
 A command-line utility and mini-library, based on scholarly, to get bibliometric data from an author 
 on Google Scholar, and to process them to extract indices and/or coauthor data.
