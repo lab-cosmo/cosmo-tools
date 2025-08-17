@@ -87,11 +87,16 @@
 \xpatchbibmacro{volume+number+eid}{\setunit*{\adddot}}{}{}{}
 
 % Bibliography formatting
-\usepackage[sorting=ydnt,bibstyle=numeric,defernumbers=true,maxnames=100,
+\usepackage[sorting=ydnt,bibstyle=phys,defernumbers=true,maxnames=100,citestyle=numeric-comp,
+            hyperref=false,
             giveninits=true, bibencoding=utf8, terseinits=false, uniquename=init,
-            doi=true,isbn=false,natbib=true,backend=bibtex]{biblatex}
+            doi=true,isbn=false,arxiv=false,natbib=true,backend=bibtex]{biblatex}
 
 \AtEveryBibitem{\clearfield{urldate}}
+\AtEveryBibitem{\clearfield{eprint:arxiv}}
+\AtEveryBibitem{\clearfield{eprint:pubmed}}
+\DeclareFieldFormat{eprint:arxiv}{}
+\DeclareFieldFormat{eprint:pubmed}{}
 \DeclareFieldFormat{url}{\url{#1}}
 \DeclareFieldFormat{urldate}{}
 \DeclareFieldFormat[article]{url}{}
@@ -105,6 +110,7 @@
 \DeclareFieldFormat{shorthandwidth}{#1}
 \DeclareFieldFormat{date}{\thefield{year}} % year only, no month
 \DeclareFieldFormat{extradate}{}
+\DeclareFieldFormat{doi}{\mkbibacro{DOI}\addcolon\space\href{https://doi.org/#1}{#1}}
 
 \ExecuteBibliographyOptions{useprefix=true}
 
