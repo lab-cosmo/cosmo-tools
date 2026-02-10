@@ -10,6 +10,7 @@ License: LGPL
 from scholarly import scholarly
 import json
 import re
+import time
 from datetime import datetime
 import numpy as np
 import sys
@@ -17,8 +18,10 @@ import argparse
 
 scholarly.set_logger(True)
 
-def fetch_citations(author, filesave="citations.json", proxy="",  proxy_list=""):
+def fetch_citations(author, filesave="citations.json", search_by_id=False, 
+                    proxy="",  proxy_list="", delay=0.0, restart=""):
     """ Fetch citations from google scholar using scholarly """
+
     if proxy != "":
         print("Setting up proxy ", proxy)
         scholarly.use_proxy(scholarly.SingleProxy(http=proxy, https=proxy))
@@ -35,29 +38,50 @@ def fetch_citations(author, filesave="citations.json", proxy="",  proxy_list="")
         proxy_gen.counter = 0
         scholarly.use_proxy(proxy_gen)
 
-    print("Looking up "+author)
-    search = scholarly.search_author(author)    
-    author = scholarly.fill(next(search))
+    if restart == "":
+        if search_by_id:
+            try:
+                search =  scholarly.search_author_id(author)
+            except AttributeError:
+                raise ValueError(f"Could not find author ID {author}")
+            author = scholarly.fill(search)
+        else:
+            print("Looking up "+author)
+            search = scholarly.search_author(author)    
+            author = scholarly.fill(next(search))
+        source_publications = author['publications'];
+    else:
+        with open(restart, 'r') as file:
+            source_publications = json.load(file)
+
+        
     publications = []
 
-    for i, pub in enumerate(author['publications']):
+    for i, pub in enumerate(source_publications):
         cites = pub['num_citations']       # often this gets messed up upon .fill()
-        if "pub_year" in pub['bib']:
-            pubyear = pub['bib']["pub_year"]  # also this gets messed up upon .fill()
-            pub = scholarly.fill(pub)
-            pub['bib']["pub_year"] = pubyear
-        else:
-            pub = scholarly.fill(pub)
-            if not "pub_year" in pub['bib']: 
-                # skip publications that really don't have a year, 
-                # they probably are crap that was picked up by the search robot
-                continue
-        
+        if not pub['filled']:
+            try:
+                if "pub_year" in pub['bib']:
+                    pubyear = pub['bib']["pub_year"]  # also this gets messed up upon .fill()
+                    pub = scholarly.fill(pub)
+                    pub['bib']["pub_year"] = pubyear
+                else:
+                    pub = scholarly.fill(pub)
+            except:
+                print(f"Failed to download extended data for publication {pub['bib']['title']}")
+
         pub['num_citations'] = cites
-        print("Fetching: "+str(i)+"/"+str(len(author['publications']))+": "+pub['bib']["title"]+" ("+str(pub['bib']["pub_year"])+")")
+        if not "pub_year" in pub['bib']: 
+            # skip publications that really don't have a year, 
+            # they probably are crap that was picked up by the search robot
+            continue
+                    
+        print("Fetched: "+str(i+1)+"/"+str(len(source_publications))+": "+pub['bib']["title"]+" ("+str(pub['bib']["pub_year"])+")")
         pub['bib'].pop("abstract", None)
-        pub.pop("source", None)
         publications.append(pub)
+        
+        time.sleep(delay)
+        
     f = open(filesave,"w")
     f.write(json.dumps(publications))
     f.close()
@@ -191,8 +215,11 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description=description)
     parser.add_argument("author", type=str, help="Name of the author to look up.")
     parser.add_argument("-o", "--output", type=str, default="citations.json", help="Filename to store the citation JSON.")
+    parser.add_argument("--id", action='store_true', help="Search for a specific author ID rather than the first matching author name")
+    parser.add_argument("--delay", type=float, default=0.0, help="Add the specified delay, in seconds, between publication reads, to reduce chance of ban.")
     parser.add_argument("--proxy", type=str, default="", help="Address of a proxy.")
+    parser.add_argument("--restart", type=str, default="", help="Restart filling a json file.")
     parser.add_argument("--proxy-list", type=str, default="", help="Filename containing a list of proxy, one item per line, with format url (including port, e.g. 127.0.0.1:80)")    
     args = parser.parse_args()
-    fetch_citations(args.author, args.output, args.proxy, args.proxy_list )
+    fetch_citations(args.author, args.output, args.id, args.proxy, args.proxy_list, args.delay, args.restart )
 
