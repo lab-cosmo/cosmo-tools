@@ -23,3 +23,18 @@ you can then run the script as
 ```
 $ submittify.sh filename submit/
 ```
+
+
+
+For Mac users, you may first need to install `gnu-sed`via Homebrew:
+
+```
+$ brew install gnu-sed
+```
+
+And then you can run the script as:
+
+```
+export PATH="/opt/homebrew/opt/gnu-sed/libexec/gnubin:$PATH"
+./submittify.sh filename submit/
+```
